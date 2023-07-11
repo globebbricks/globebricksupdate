@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:globebricks/profile.dart';
 import 'package:globebricks/serach_field/search.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+
+import '../onboarding/slide_items.dart';
+import '../onboarding/slide_list.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -20,10 +24,16 @@ class _HomeState extends State<Home>
   bool dayLoading = false;
   var pc = PanelController();
 
+  final PageController _pageController = PageController(initialPage: 0);
+
+
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
+    _pageController.dispose();
+
     super.dispose();
   }
 
@@ -104,7 +114,6 @@ class _HomeState extends State<Home>
   Widget _body() {
     return SafeArea(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Padding(
             padding: EdgeInsets.only(
@@ -223,7 +232,15 @@ class _HomeState extends State<Home>
               ],
             ),
           ),
-
+          SizedBox(
+            height: 200,
+            child: PageView.builder(
+              physics: const BouncingScrollPhysics(),
+              controller: _pageController,
+              itemCount: 4,
+              itemBuilder: (ctx, i) => HomeSlide(i),
+            ),
+          ),
         ],
       ),
     );
@@ -249,10 +266,73 @@ class _HomeState extends State<Home>
               ],
             ),
           ),
+           Card(
+             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+
+             child: Stack(
+               alignment: Alignment.topRight,
+               children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width/2,
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                   Icon(Icons.house,color: Colors.green,),
+                    Text("Post Property",style: TextStyle(fontFamily: "Nunito"),),
+                  ],
+                ),
+              ),
+            ),
+              const Card(
+                  color: Colors.red,
+                  child: Padding(
+                    padding: EdgeInsets.all(2.0),
+                    child: Text(
+
+                "Free",style: TextStyle(color: Colors.white),),
+                  ))
+          ],),)
         ],
       ),
     );
   }
 
 
+}
+
+
+class HomeSlide extends StatefulWidget {
+  final int index;
+
+  const HomeSlide(this.index, {super.key});
+
+  @override
+  State<HomeSlide> createState() => _HomeSlideState();
+}
+
+class _HomeSlideState extends State<HomeSlide>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _controller = AnimationController(vsync: this);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset("assets/${widget.index}.png",
+      height: MediaQuery.of(context).size.height/5,
+      width: MediaQuery.of(context).size.width/2,
+    );
+  }
 }
