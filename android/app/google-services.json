@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "458009257102",
+    "project_id": "globebricksproject",
+    "storage_bucket": "globebricksproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:458009257102:android:ad413941ec2b3038f355df",
+        "android_client_info": {
+          "package_name": "com.globebricks.globebricks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "458009257102-8lltjg11thvc55o7fcvqvasoifncd718.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzqNdKBU9B5DVz9IIoLgCczQw4EuXZOoA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "458009257102-8lltjg11thvc55o7fcvqvasoifncd718.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "458009257102-38sate9iiirbhasvagdadvfkffk2fsgs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.globebricks.globebricks"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
