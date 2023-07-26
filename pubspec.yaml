@@ -53,6 +53,7 @@ dependencies:
   shared_preferences: ^2.2.0
   geoflutterfire2: ^2.3.15
   app_settings: ^5.0.0
+  firebase_storage: ^11.2.5
 
 
 dev_dependencies:
@@ -79,6 +80,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/filter/
 
   fonts:
     - family: Mukta

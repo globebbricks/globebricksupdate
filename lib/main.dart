@@ -16,7 +16,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate(
-    webRecaptchaSiteKey: "6LcwIg8nAAAAAEEt8w2Vo4Qq73ejGmV_2dXihuPe",
+      webRecaptchaSiteKey: "6LcwIg8nAAAAAEEt8w2Vo4Qq73ejGmV_2dXihuPe",
       androidProvider: AndroidProvider.debug,
       appleProvider: AppleProvider.debug);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -64,36 +64,35 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
-            (_) => Future.delayed(const Duration(milliseconds: 3000), () async {
-          if(loaded){
-            if (FirebaseAuth.instance.currentUser != null) {
-              loaded = false;
-              if (Platform.isAndroid) {
-
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const Home(),
-                    ),
+        (_) => Future.delayed(const Duration(milliseconds: 3000), () async {
+              if (loaded) {
+                if (FirebaseAuth.instance.currentUser != null) {
+                  loaded = false;
+                  if (Platform.isAndroid) {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Home(),
+                        ),
                         (route) => false);
-              }
-              if (Platform.isIOS) {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => const Home(),
-                    ),
+                  }
+                  if (Platform.isIOS) {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => const Home(),
+                        ),
                         (route) => false);
+                  }
+                } else {
+                  loaded = false;
+                  userStateSave();
+                }
               }
-            } else {
-              loaded = false;
-              userStateSave();
-            }
-          }
-        }));
+            }));
 
     return Scaffold(
-      backgroundColor: const Color(0XFFffe48c),
+      backgroundColor: const Color(0xffFFC8B0),
       body: SafeArea(
         child: Center(
           child: Column(
@@ -115,8 +114,6 @@ class _MyHomePageState extends State<MyHomePage>
                       'assets/loading.json',
                       controller: _controller,
                       onLoaded: (composition) {
-                        // Configure the AnimationController with the duration of the
-                        // Lottie file and start the animation.
                         _controller
                           ..duration = composition.duration
                           ..repeat();
@@ -128,11 +125,14 @@ class _MyHomePageState extends State<MyHomePage>
               Platform.isIOS
                   ? const Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: CupertinoActivityIndicator(),
+                      child: CupertinoActivityIndicator(
+                        color: Colors.black,
+                      ),
                     )
                   : const Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(color: Colors.black87,strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                          color: Colors.black, strokeWidth: 2),
                     )
             ],
           ),

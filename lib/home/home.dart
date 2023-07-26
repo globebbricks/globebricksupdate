@@ -1,14 +1,15 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delayed_display/delayed_display.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:globebricks/assistants/data.dart';
 import 'package:globebricks/profile.dart';
 import 'package:globebricks/serach_field/search.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-
-import '../onboarding/slide_items.dart';
-import '../onboarding/slide_list.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -23,10 +24,18 @@ class _HomeState extends State<Home>
   late String dayTime;
   bool dayLoading = false;
   var pc = PanelController();
-
   final PageController _pageController = PageController(initialPage: 0);
+  late Timer timer;
 
+  int _currentPage = 0;
 
+  bool panelOpened = false;
+
+  _onPageChanged(int index) {
+    setState(() {
+      _currentPage = index;
+    });
+  }
 
   @override
   void dispose() {
@@ -56,7 +65,7 @@ class _HomeState extends State<Home>
   }
 
   void onResumed() {
-
+    pageScroller();
   }
 
   void onPaused() {}
@@ -80,18 +89,40 @@ class _HomeState extends State<Home>
     setState(() {
       dayLoading = true;
     });
+    pageScroller();
     super.initState();
   }
 
+  void pageScroller() {
+    timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+      if (_currentPage < 6) {
+        if (mounted) {
+          _pageController.animateToPage(
+            _currentPage,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeIn,
+          );
+          _currentPage++;
+        }
+      } else {
+        if (mounted) {
+          _currentPage = 0;
+          _pageController.animateToPage(_currentPage,
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeIn);
+          timer.cancel();
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     double maxHeight = MediaQuery.of(context).size.height / 1.2;
-    double minHeight = MediaQuery.of(context).size.height / 2.5;
+    double minHeight = MediaQuery.of(context).size.height / 3;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-        backgroundColor: const Color(0XFFffe48c),
-
+        resizeToAvoidBottomInset: false,
+        backgroundColor: const Color(0xffFFC8B0),
         body: Stack(alignment: Alignment.topCenter, children: [
           SlidingUpPanel(
             maxHeight: maxHeight,
@@ -99,14 +130,21 @@ class _HomeState extends State<Home>
             parallaxEnabled: true,
             parallaxOffset: .5,
             body: _body(),
+            onPanelClosed: () {
+              setState(() {
+                panelOpened = false;
+              });
+            },
+            onPanelOpened: () {
+              setState(() {
+                panelOpened = true;
+              });
+            },
             controller: pc,
             panelBuilder: (sc) => _panel(sc),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18.0),
                 topRight: Radius.circular(18.0)),
-            onPanelSlide: (double pos) => setState(() {
-              minHeight = maxHeight;
-            }),
           ),
         ]));
   }
@@ -168,17 +206,20 @@ class _HomeState extends State<Home>
                             child: Text(
                               dayTime,
                               style: TextStyle(
-                                  color: Colors.black54,
+                                  color: Colors.white,
                                   fontFamily: "Nunito",
                                   fontSize:
                                       MediaQuery.of(context).size.width / 22),
                             ),
                           )
-                        : const Text(""),
+                        : Platform.isIOS
+                            ? const CupertinoActivityIndicator()
+                            : const CircularProgressIndicator(),
                     Text(
                       "Amrit",
                       style: TextStyle(
-                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                           fontFamily: "Nunito",
                           fontSize: MediaQuery.of(context).size.width / 22),
                     ),
@@ -192,7 +233,7 @@ class _HomeState extends State<Home>
                       padding: EdgeInsets.all(
                           MediaQuery.of(context).size.width / 20),
                       child: TextFormField(
-                        onTap: (){
+                        onTap: () {
                           if (Platform.isAndroid) {
                             Navigator.push(
                                 context,
@@ -217,8 +258,12 @@ class _HomeState extends State<Home>
                             suffixIcon: const Padding(
                               padding: EdgeInsets.only(right: 8.0),
                               child: CircleAvatar(
-                                backgroundColor: Colors.green,
-                                child: Icon(Icons.search,color: Colors.white,),),
+                                backgroundColor: Colors.black,
+                                child: Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                             filled: true,
                             border: OutlineInputBorder(
@@ -233,11 +278,13 @@ class _HomeState extends State<Home>
             ),
           ),
           SizedBox(
-            height: 200,
+            height: MediaQuery.of(context).size.height / 4,
             child: PageView.builder(
+              scrollDirection: Axis.vertical,
               physics: const BouncingScrollPhysics(),
               controller: _pageController,
-              itemCount: 4,
+              itemCount: 6,
+              onPageChanged: _onPageChanged,
               itemBuilder: (ctx, i) => HomeSlide(i),
             ),
           ),
@@ -247,61 +294,103 @@ class _HomeState extends State<Home>
   }
 
   _panel(ScrollController sc) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
+    return Scaffold(
+      backgroundColor: const Color(0xffFFF8F4),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(MediaQuery.of(context).size.height / 100),
+              child: panelOpened
+                  ? const Icon(Icons.keyboard_arrow_down)
+                  : const Icon(Icons.keyboard_arrow_up),
+            ),
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 30,
-                  height: 5,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(12.0))),
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50)),
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.house,
+                                color: Colors.green,
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  final geo = GeoFlutterFire();
+                                  final firestore = FirebaseFirestore.instance;
+                                  GeoFirePoint location = geo.point(
+                                      latitude: UserData.latitude,
+                                      longitude: UserData.longitude);
+                                  firestore
+                                      .collection('globeBricks')
+                                      .doc("Rent")
+                                      .collection("1Bhk")
+
+                                      .add({
+                                    'userId':
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                    'position': location.data
+                                  });
+                                  // if (Platform.isAndroid) {
+                                  //   Navigator.push(
+                                  //       context,
+                                  //       MaterialPageRoute(
+                                  //         builder: (context) => const SellerRegistration(),
+                                  //       ));
+                                  // }
+                                  // if (Platform.isIOS) {
+                                  //   Navigator.push(
+                                  //       context,
+                                  //       CupertinoPageRoute(
+                                  //         builder: (context) => const SellerRegistration(),
+                                  //       ));
+                                  // }
+                                },
+                                child: Text(
+                                  "Post a Property",
+                                  style: TextStyle(
+                                      fontFamily: "Nunito",
+                                      fontSize:
+                                          MediaQuery.of(context).size.width /
+                                              25,
+                                      color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Card(
+                          color: Colors.red,
+                          child: Padding(
+                            padding: EdgeInsets.all(2.0),
+                            child: Text(
+                              "Free",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ))
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-           Card(
-             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-
-             child: Stack(
-               alignment: Alignment.topRight,
-               children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width/2,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                   Icon(Icons.house,color: Colors.green,),
-                    Text("Post Property",style: TextStyle(fontFamily: "Nunito"),),
-                  ],
-                ),
-              ),
-            ),
-              const Card(
-                  color: Colors.red,
-                  child: Padding(
-                    padding: EdgeInsets.all(2.0),
-                    child: Text(
-
-                "Free",style: TextStyle(color: Colors.white),),
-                  ))
-          ],),)
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
-
-
 }
-
 
 class HomeSlide extends StatefulWidget {
   final int index;
@@ -330,9 +419,8 @@ class _HomeSlideState extends State<HomeSlide>
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset("assets/${widget.index}.png",
-      height: MediaQuery.of(context).size.height/5,
-      width: MediaQuery.of(context).size.width/2,
+    return Image.asset(
+      "assets/${widget.index}.png",
     );
   }
 }

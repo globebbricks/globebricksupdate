@@ -1,11 +1,14 @@
 
 
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class UserData {
-static late LatLng selectLocation;
+
   static late String placeId;
   static late String address;
+  static late double latitude;
+  static late double longitude;
+  static late double customLatitude;
+  static late double customLongitude;
 }
 
 

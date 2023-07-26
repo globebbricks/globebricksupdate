@@ -12,7 +12,7 @@ import GoogleMaps
       FirebaseApp.configure()
       GMSServices.provideAPIKey("AIzaSyBcI2mPewamGg8bSTwZFAD0QNaXLgb84Cc")
     GeneratedPluginRegistrant.register(with: self)
-      UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(10))
+      UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(30))
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

@@ -21,6 +21,8 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login>  with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
+  bool passwordView = true;
+
   @override
   void dispose() {
     _controller.dispose();
@@ -46,7 +48,7 @@ class _LoginState extends State<Login>  with SingleTickerProviderStateMixin {
       body: Container(
         decoration: const BoxDecoration(
             gradient: LinearGradient(colors: [
-              Color(0xffffffff),
+              Color(0xffFFC8B0),
               Color(0xffffdb8f),
             ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
         child: SingleChildScrollView(
@@ -130,6 +132,7 @@ class _LoginState extends State<Login>  with SingleTickerProviderStateMixin {
                     bottom: MediaQuery.of(context).size.width / 20,
                   ),
                   child: TextFormField(
+                    obscureText: passwordView,
                     controller: passwordController,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -142,6 +145,13 @@ class _LoginState extends State<Login>  with SingleTickerProviderStateMixin {
                     },
                     showCursor: true,
                     decoration: InputDecoration(
+                      suffixIcon: GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              passwordView = !passwordView;
+                            });
+                      },
+                          child: const Icon(Icons.remove_red_eye,color: Colors.black,)),
                         errorStyle:
                             const TextStyle(color: Colors.black),
                         filled: true,
@@ -346,6 +356,17 @@ class _LoginState extends State<Login>  with SingleTickerProviderStateMixin {
                   Navigator.pop(context);
                 },
                 child: const Text("Change Password")));
+
+      }else if(e.code == 'user-not-found'){
+        errorSheet(
+            "User not found!",
+            "User not found or may deleted please check your entered email.",
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Try Again")));
+
       } else if (e.code == "network-request-failed") {
         errorSheet(
             "Connection error!",

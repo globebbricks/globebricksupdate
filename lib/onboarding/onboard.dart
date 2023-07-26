@@ -20,6 +20,11 @@ class OnBoard extends StatefulWidget {
 class _OnBoardState extends State<OnBoard> {
   int _currentPage = 0;
   final PageController _pageController = PageController(initialPage: 0);
+  _onPageChanged(int index) {
+    setState(() {
+      _currentPage = index;
+    });
+  }
 
   @override
   void dispose() {
@@ -27,11 +32,6 @@ class _OnBoardState extends State<OnBoard> {
     super.dispose();
   }
 
-  _onPageChanged(int index) {
-    setState(() {
-      _currentPage = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

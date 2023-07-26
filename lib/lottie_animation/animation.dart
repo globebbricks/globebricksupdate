@@ -27,7 +27,9 @@ class _LottieAnimateState extends State<LottieAnimate> with SingleTickerProvider
   }
   @override
   Widget build(BuildContext context) {
-    return  Lottie.asset(
+    return
+
+      Lottie.asset(
      widget.assetName,
       controller: _controller,
       onLoaded: (composition) {
@@ -35,8 +37,9 @@ class _LottieAnimateState extends State<LottieAnimate> with SingleTickerProvider
         // Lottie file and start the animation.
         _controller
           ..duration = composition.duration
-          ..repeat();
+          ..forward();
       },
     );
   }
+
 }
