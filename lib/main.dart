@@ -92,7 +92,9 @@ class _MyHomePageState extends State<MyHomePage>
             }));
 
     return Scaffold(
-      backgroundColor: const Color(0xffFFC8B0),
+      backgroundColor: const
+      Color(0xffe29587),
+
       body: SafeArea(
         child: Center(
           child: Column(
@@ -122,18 +124,7 @@ class _MyHomePageState extends State<MyHomePage>
                   ),
                 ],
               ),
-              Platform.isIOS
-                  ? const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CupertinoActivityIndicator(
-                        color: Colors.black,
-                      ),
-                    )
-                  : const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(
-                          color: Colors.black, strokeWidth: 2),
-                    )
+
             ],
           ),
         ),

@@ -141,19 +141,19 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
                         color: Colors.green,
                           onPressed: () {
                             if (Platform.isAndroid) {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                         PropertySearching(propertyType: '1Bhk',),
+                                         const PropertySearching(propertyType: '1Bhk',),
                                   ));
                             }
                             if (Platform.isIOS) {
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   CupertinoPageRoute(
                                     builder: (context) =>
-                                        PropertySearching(propertyType: '1Bhk',),
+                                        const PropertySearching(propertyType: '1Bhk',),
 
                                   ));
                             }

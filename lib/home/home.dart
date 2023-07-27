@@ -122,7 +122,7 @@ class _HomeState extends State<Home>
     double minHeight = MediaQuery.of(context).size.height / 3;
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: const Color(0xffFFC8B0),
+        backgroundColor: const Color(0xffe29587),
         body: Stack(alignment: Alignment.topCenter, children: [
           SlidingUpPanel(
             maxHeight: maxHeight,

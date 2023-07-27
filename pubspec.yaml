@@ -93,9 +93,14 @@ flutter:
 
     - family: MyFlutterApp
       fonts:
+        - asset: fonts/Whatsapp.ttf
+
+
+    - family: MyFlutterApp
+      fonts:
         - asset: fonts/MyFlutterApp.ttf
 
-    - family: c
+    - family: LeagueSpartan
       fonts:
         - asset: fonts/LeagueSpartan-Regular.ttf
 
