@@ -31,6 +31,19 @@ class _HomeState extends State<Home>
 
   bool panelOpened = false;
 
+  List<String> hintList = [
+    "Search Property Anywhere",
+    "Find Flatmates, Roommates",
+    "Sell your Property, House or Land",
+    "Buy property, House or Land",
+    "Repair House, Wall paint, Decoration",
+    "Find Commercial Spaces",
+    "Find Furniture Near You",
+    "Find Builders or Collaboration",
+    "Need Worker or Labour",
+
+  ];
+
   _onPageChanged(int index) {
     setState(() {
       _currentPage = index;
@@ -41,6 +54,7 @@ class _HomeState extends State<Home>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
+    timer.cancel();
     _pageController.dispose();
 
     super.dispose();
@@ -95,23 +109,19 @@ class _HomeState extends State<Home>
 
   void pageScroller() {
     timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
-      if (_currentPage < 6) {
-        if (mounted) {
+
+      if (_currentPage < hintList.length) {
           _pageController.animateToPage(
             _currentPage,
             duration: const Duration(milliseconds: 350),
             curve: Curves.easeIn,
           );
           _currentPage++;
-        }
       } else {
-        if (mounted) {
           _currentPage = 0;
           _pageController.animateToPage(_currentPage,
               duration: const Duration(milliseconds: 350),
               curve: Curves.easeIn);
-          timer.cancel();
-        }
       }
     });
   }
@@ -221,7 +231,7 @@ class _HomeState extends State<Home>
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           fontFamily: "Nunito",
-                          fontSize: MediaQuery.of(context).size.width / 22),
+                          fontSize: MediaQuery.of(context).size.width / 20),
                     ),
                   ],
                 ),
@@ -251,7 +261,7 @@ class _HomeState extends State<Home>
                         },
                         readOnly: true,
                         decoration: InputDecoration(
-                            hintText: "Search Locality, Properties, Projects",
+                            hintText: hintList[_currentPage],
                             hintStyle: const TextStyle(
                                 color: Colors.black38, fontFamily: "Nunito"),
                             fillColor: Colors.white,
@@ -283,7 +293,7 @@ class _HomeState extends State<Home>
               scrollDirection: Axis.vertical,
               physics: const BouncingScrollPhysics(),
               controller: _pageController,
-              itemCount: 6,
+              itemCount: hintList.length,
               onPageChanged: _onPageChanged,
               itemBuilder: (ctx, i) => HomeSlide(i),
             ),
@@ -322,7 +332,7 @@ class _HomeState extends State<Home>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Icon(
-                                Icons.house,
+                                Icons.sell_outlined,
                                 color: Colors.green,
                               ),
                               TextButton(
@@ -334,13 +344,13 @@ class _HomeState extends State<Home>
                                       longitude: UserData.longitude);
                                   firestore
                                       .collection('globeBricks')
-                                      .doc("Rent")
-                                      .collection("1Bhk")
-
+                                      .doc("propertyRent")
+                                      .collection("data")
                                       .add({
                                     'userId':
                                         FirebaseAuth.instance.currentUser!.uid,
-                                    'position': location.data
+                                    'position': location.data,
+                                    "propertyType" : "2Bhk"
                                   });
                                   // if (Platform.isAndroid) {
                                   //   Navigator.push(
@@ -358,7 +368,7 @@ class _HomeState extends State<Home>
                                   // }
                                 },
                                 child: Text(
-                                  "Post a Property",
+                                  "Seller Listing",
                                   style: TextStyle(
                                       fontFamily: "Nunito",
                                       fontSize:

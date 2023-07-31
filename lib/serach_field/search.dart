@@ -29,9 +29,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
   List<dynamic> listData = [];
   var searchController = TextEditingController();
 
-  bool searching = false;
   bool load = true;
-
   late double customLatitude;
 
   late double customLongitude;
@@ -57,7 +55,6 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
   final List<Marker> markers = <Marker>[];
   double panelHeightOpen = 0.0;
   double panelHeightClosed = 0.0;
-  FocusNode focusNode = FocusNode();
   late GoogleMapController refController;
   final Completer<GoogleMapController> _controller = Completer();
   static const CameraPosition _kGoogle = CameraPosition(
@@ -85,257 +82,211 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
             style: TextStyle(color: Colors.black87),
           ),
         ),
-        floatingActionButton: searching
-            ? Container()
-            : FloatingActionButton(
-                backgroundColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    myLocationMarker();
-                    locateMe();
-                    searching = false;
-                  });
-                },
-                child: const Icon(
-                  Icons.location_on,
-                  color: Colors.green,
-                ),
-              ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          onPressed: () {
+            setState(() {
+              _determinePosition();
+              myLocationMarker();
+            });
+          },
+          child: const Icon(
+            Icons.location_on,
+            color: Colors.green,
+          ),
+        ),
         resizeToAvoidBottomInset: false,
         body: Stack(
           alignment: Alignment.topCenter,
           children: <Widget>[
             GoogleMap(
+              zoomGesturesEnabled: true,
               initialCameraPosition: _kGoogle,
               markers: Set<Marker>.of(markers),
               mapType: MapType.normal,
               scrollGesturesEnabled: true,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
-              buildingsEnabled: false,
-              tiltGesturesEnabled: false,
+              buildingsEnabled: true,
+              tiltGesturesEnabled: true,
               myLocationEnabled: true,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
             ),
-            searching
-                ? SafeArea(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          DelayedDisplay(
-                              child: Padding(
-                            padding: EdgeInsets.all(
-                                MediaQuery.of(context).size.width / 20),
-                            child: TextFormField(
-                              controller: searchController,
-                              onChanged: (value) {
-                                _placeApiRequest(value);
-                              },
-                              focusNode: focusNode,
-                              autofocus: true,
-                              decoration: InputDecoration(
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          searchController.clear();
-                                          listData = [];
-                                        });
-                                      },
-                                      icon: const CircleAvatar(
-
-                                          child: Icon(Icons.close,color: Colors.white,))),
-                                  hintText: "Search Area, Locality, City",
-                                  hintStyle: const TextStyle(
-                                      color: Colors.black38,
-                                      fontFamily: "Nunito"),
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(40),
-                                    borderSide: BorderSide.none,
-                                  )),
-                            ),
-                          )),
-                          (listData.isNotEmpty)
-                              ? Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: ListView.builder(
-                                    itemCount: listData.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          setState(() {
-                                            searching = false;
-                                          });
-
-                                          UserData.address =
-                                              "${listData[index]["structured_formatting"]["main_text"] + " ${listData[index]["structured_formatting"]["secondary_text"]}" + " ${listData[index]["description"]}"}";
-
-                                          setState(() {
-                                            address = UserData.address;
-                                          });
-
-                                          UserData.placeId =
-                                              listData[index]["place_id"];
-
-                                          String url =
-                                              "https://maps.googleapis.com/maps/api/place/details/json?placeid=${listData[index]["place_id"]}&key=${MapKey.key}";
-                                          var response =
-                                              await RequestApi.getRequestUrl(
-                                                  url);
-                                          if (RequestApi.responseState) {
-                                            customLatitude =
-                                                await response["result"]
-                                                        ["geometry"]["location"]
-                                                    ["lat"];
-                                            customLongitude =
-                                                await response["result"]
-                                                        ["geometry"]["location"]
-                                                    ["lng"];
-                                          }
-
-                                          final GoogleMapController controller =
-                                              await _controller.future;
-                                          await controller.animateCamera(
-                                              CameraUpdate.newCameraPosition(
-                                                  CameraPosition(
-                                                      target: LatLng(
-                                                          customLatitude,
-                                                          customLongitude),
-                                                      zoom: 18)));
-                                          markers.add(
-                                            Marker(
-                                                draggable: true,
-                                                onDragEnd: (latlng) {
-                                                  dragCustomLocation(latlng);
-                                                },
-
-                                                visible: true,
-                                                infoWindow: InfoWindow(
-                                                  // given title for marker
-                                                  title:
-                                                      'Location: ${UserData.address}',
-                                                ),
-                                                position: LatLng(customLatitude,
-                                                    customLongitude),
-                                                markerId: const MarkerId(
-                                                    "Custom Location"),
-                                                icon: BitmapDescriptor
-                                                    .defaultMarker),
-                                          );
-                                          setState(() {
-                                            UserData.customLatitude =
-                                                customLatitude;
-                                            UserData.customLongitude =
-                                                customLongitude;
-                                          });
-                                        },
-                                        child: Card(
-                                          child: Padding(
-                                            padding: EdgeInsets.all(
-                                                MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    60),
-                                            child: ListBody(
-                                              children: [
-                                                Text(
-                                                  listData[index][
-                                                              "structured_formatting"]
-                                                          ["main_text"]
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                    fontFamily: "Nunito",
-                                                    fontWeight: FontWeight.bold,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  softWrap: false,
-                                                  maxLines: 4,
-                                                ),
-                                                SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      30,
-                                                ),
-                                                Text(
-                                                  listData[index][
-                                                              "structured_formatting"]
-                                                          ["secondary_text"]
-                                                      .toString(),
-                                                  softWrap: false,
-                                                  maxLines: 4,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Text(
-                                                  listData[0]["description"]
-                                                      .toString(),
-                                                  softWrap: false,
-                                                  maxLines: 4,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      30,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    shrinkWrap: true,
-                                    physics: const ClampingScrollPhysics(),
-                                  ),
-                                )
-                              : Container(),
-                          DelayedDisplay(
-                            child: CupertinoButton(
-                                color: Colors.red,
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    DelayedDisplay(
+                        child: Padding(
+                      padding: EdgeInsets.all(
+                          MediaQuery.of(context).size.width / 20),
+                      child: TextFormField(
+                        controller: searchController,
+                        onChanged: (value) {
+                          _placeApiRequest(value);
+                        },
+                        decoration: InputDecoration(
+                            suffixIcon: IconButton(
                                 onPressed: () {
                                   setState(() {
                                     searchController.clear();
-                                    searching = false;
-                                    panelHeightClosed =
-                                        MediaQuery.of(context).size.height / 3;
+                                    listData = [];
                                   });
                                 },
-                                child: const Text(
-                                  "Cancel",
-                                  style: TextStyle(color: Colors.white),
-                                )),
-                          ),
-                        ],
+                                icon: const CircleAvatar(
+                                    child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                ))),
+                            hintText: "Search location",
+                            hintStyle: const TextStyle(
+                                color: Colors.black38, fontFamily: "Nunito"),
+                            fillColor: Colors.white,
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(40),
+                              borderSide: BorderSide.none,
+                            )),
                       ),
-                    ),
-                  )
-                : Container(),
-            searching
-                ? Container()
-                : DelayedDisplay(
-                    child: SlidingUpPanel(
-                      controller: pc,
-                      defaultPanelState: PanelState.CLOSED,
-                      maxHeight: panelHeightOpen =
-                          MediaQuery.of(context).size.height,
-                      minHeight: panelHeightClosed =
-                          MediaQuery.of(context).size.height / 3,
-                      parallaxEnabled: true,
-                      parallaxOffset: .5,
-                      panelBuilder: (sc) => _panel(sc),
-                      borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(18.0),
-                          topRight: Radius.circular(18.0)),
-                    ),
-                  )
+                    )),
+                    (listData.isNotEmpty)
+                        ? Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: ListView.builder(
+                              itemCount: listData.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return GestureDetector(
+                                  onTap: () async {
+                                    UserData.address =
+                                        "${listData[index]["structured_formatting"]["main_text"] + " ${listData[index]["structured_formatting"]["secondary_text"]}" + " ${listData[index]["description"]}"}";
+
+                                    setState(() {
+                                      address = UserData.address;
+                                    });
+
+                                    UserData.placeId =
+                                        listData[index]["place_id"];
+
+                                    String url =
+                                        "https://maps.googleapis.com/maps/api/place/details/json?placeid=${listData[index]["place_id"]}&key=${MapKey.key}";
+                                    var response =
+                                        await RequestApi.getRequestUrl(url);
+                                    if (RequestApi.responseState) {
+                                      customLatitude = await response["result"]
+                                          ["geometry"]["location"]["lat"];
+                                      customLongitude = await response["result"]
+                                          ["geometry"]["location"]["lng"];
+                                    }
+                                    clearList();
+                                    final GoogleMapController controller =
+                                        await _controller.future;
+                                    await controller.animateCamera(
+                                        CameraUpdate.newCameraPosition(
+                                            CameraPosition(
+                                                target: LatLng(customLatitude,
+                                                    customLongitude),
+                                                zoom: 18)));
+                                    markers.add(
+                                      Marker(
+                                          draggable: true,
+                                          onDragEnd: (latlng) {
+                                            dragCustomLocation(latlng);
+                                          },
+                                          visible: true,
+                                          infoWindow: InfoWindow(
+                                            // given title for marker
+                                            title:
+                                                'Location: ${UserData.address}',
+                                          ),
+                                          position: LatLng(
+                                              customLatitude, customLongitude),
+                                          markerId:
+                                              const MarkerId("Custom Location"),
+                                          icon: BitmapDescriptor.defaultMarker),
+                                    );
+                                    UserData.latitude = customLatitude;
+                                    UserData.longitude = customLongitude;
+                                  },
+                                  child: Card(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(
+                                          MediaQuery.of(context).size.height /
+                                              60),
+                                      child: ListBody(
+                                        children: [
+                                          Text(
+                                            listData[index][
+                                                        "structured_formatting"]
+                                                    ["main_text"]
+                                                .toString(),
+                                            style: const TextStyle(
+                                              fontFamily: "Nunito",
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            softWrap: false,
+                                            maxLines: 4,
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                30,
+                                          ),
+                                          Text(
+                                            listData[index][
+                                                        "structured_formatting"]
+                                                    ["secondary_text"]
+                                                .toString(),
+                                            softWrap: false,
+                                            maxLines: 4,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            listData[0]["description"]
+                                                .toString(),
+                                            softWrap: false,
+                                            maxLines: 4,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                30,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              shrinkWrap: true,
+                              physics: const ClampingScrollPhysics(),
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
+              ),
+            ),
+            DelayedDisplay(
+              child: SlidingUpPanel(
+                controller: pc,
+                defaultPanelState: PanelState.CLOSED,
+                maxHeight: panelHeightOpen = MediaQuery.of(context).size.height,
+                minHeight: panelHeightClosed =
+                    MediaQuery.of(context).size.height / 3,
+                parallaxEnabled: true,
+                parallaxOffset: .5,
+                panelBuilder: (sc) => _panel(sc),
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(18.0),
+                    topRight: Radius.circular(18.0)),
+              ),
+            )
           ],
         ),
       ),
@@ -346,155 +297,119 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
 
   _panel(ScrollController sc) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-              Color(0xffe29587),
-              Color(0xffFFC8B0),
-            ])),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Container(
-                      width: 30,
-                      height: 5,
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(12.0))),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Text("Hold & drag marker to change location",style: TextStyle(fontFamily: "Nunito",color: Colors.white),),
-              locating
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            const Row(
-                              children: [
-                                Text(
-                                  "You are here",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: "Nunito",
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Icon(
-                                  Icons.location_on,
-                                  color: Colors.greenAccent,
-                                ),
-                              ],
-                            ),
-                            Text(
-                              UserData.address,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize:
-                                      MediaQuery.of(context).size.width / 28,
-                                  fontFamily: "Nunito"),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : Platform.isIOS
-                      ? const CupertinoActivityIndicator()
-                      : const CircularProgressIndicator(
-                          backgroundColor: Colors.black54,
-                          strokeWidth: 2,
-                        ),
-              Padding(
-                padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.height / 10,
-                    right: MediaQuery.of(context).size.height / 10),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                  child: CupertinoButton(
-                    onPressed: () {
-                      setState(() {
-                        searching = true;
-                        FocusScope.of(context).requestFocus();
-                      });
-                    },
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Find Location",
-                            style: TextStyle(
-                              fontFamily: "Nunito",
-                              fontWeight: FontWeight.w400,
-                            )),
-                        Icon(Icons.edit_location_alt_outlined)
-                      ],
-                    ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 30,
+                    height: 5,
+                    decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.all(Radius.circular(12.0))),
                   ),
-                ),
+                ],
               ),
-              const LottieAnimate(
-                assetName: 'assets/search.json',
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  textAlign: TextAlign.center,
-                  "We will give you relevant results on next page according to your select location ",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: MediaQuery.of(context).size.width / 25,
-                      fontFamily: "Nunito"),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 15),
-                child: CupertinoButton(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
-                    child: const Text(
-                      "Next",
-                      style: TextStyle(
-                        color: Colors.black,
+            ),
+            const Text(
+              "Hold & drag marker to change location",
+              style: TextStyle(fontFamily: "Nunito"),
+            ),
+            locating
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          const Row(
+                            children: [
+                              Text(
+                                "You are here",
+                                style: TextStyle(
+                                    fontFamily: "Nunito",
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Icon(
+                                Icons.location_on,
+                                color: Colors.green,
+                              ),
+                            ],
+                          ),
+                          Text(
+                            UserData.address,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 28,
+                                fontFamily: "Nunito"),
+                          ),
+                        ],
                       ),
                     ),
-                    onPressed: () {
-                      if (Platform.isAndroid) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PropertySearchFilter(),
-                            ));
-                      }
-                      if (Platform.isIOS) {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) => const PropertySearchFilter(),
-                            ));
-                      }
-                    }),
+                  )
+                : Platform.isIOS
+                    ? const CupertinoActivityIndicator()
+                    : const CircularProgressIndicator(
+                        backgroundColor: Colors.black54,
+                        strokeWidth: 2,
+                      ),
+            const LottieAnimate(
+              assetName: 'assets/search.json',
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                textAlign: TextAlign.center,
+                "We will give you relevant results according to your select location ",
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width / 25,
+                    fontFamily: "Nunito"),
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 7,
-              )
-            ],
-          ),
+            ),
+            locating
+                ? Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height / 15),
+                    child: CupertinoButton(
+                        borderRadius: BorderRadius.circular(30),
+                        color: Colors.green,
+                        child: const Text(
+                          "Next",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onPressed: () {
+                          if (Platform.isAndroid) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PropertySearchFilter(),
+                                ));
+                          }
+                          if (Platform.isIOS) {
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) =>
+                                      const PropertySearchFilter(),
+                                ));
+                          }
+                        }),
+                  )
+                : const Text("Please Wait.."),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 7,
+            )
+          ],
         ),
       ),
     );
@@ -541,34 +456,31 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     UserData.latitude = position.latitude;
     UserData.longitude = position.longitude;
     UserData.address = data;
+setState(() {
+  myLocationMarker();
+  address = data;
+  locating = true;
+});
 
-    setState(() {
-      if(mounted){
-        myLocationMarker();
-        address = data;
-        locating = true;
-      }
-    });
   }
 
- void myLocationMarker(){
-      markers.add(
-        Marker(
-            draggable: true,
-            onDragEnd: (latlng) {
-              dragCustomLocation(latlng);
-            },
-            visible: true,
-            infoWindow: InfoWindow(
-              title: 'Location: ${UserData.address}',
-            ),
-            position: LatLng(position.latitude, position.longitude),
-            markerId:  const MarkerId("My Location"),
-            icon: BitmapDescriptor.defaultMarker),
-      );
-      setState(() {
-      });
+  void myLocationMarker() {
+    markers.add(
+      Marker(
+          draggable: true,
+          onDragEnd: (latlng) {
+            dragCustomLocation(latlng);
+          },
+          visible: true,
+          infoWindow: InfoWindow(
+            title: 'Location: ${UserData.address}',
+          ),
+          position: LatLng(position.latitude, position.longitude),
+          markerId: const MarkerId("My Location"),
+          icon: BitmapDescriptor.defaultMarker),
+    );
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
@@ -588,16 +500,14 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
   }
 
   Future<void> onResumed() async {
-  _determinePosition();
+    _determinePosition();
   }
 
-  void onPaused() {
+  void onPaused() {}
 
-  }
+  void onInactive() {}
 
-  void onInactive() {  }
-
-  void onDetached() { }
+  void onDetached() {}
 
   showError() {
     if (Platform.isAndroid) {
@@ -614,10 +524,15 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                   AppSettings.openAppSettings();
                   Navigator.pop(context);
                 },
-                child: const Text("Allow")), TextButton(
+                child: const Text("Allow")),
+            TextButton(
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const Home(),), (route) => false);
-
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Home(),
+                      ),
+                      (route) => false);
                 },
                 child: const Text("Cancel"))
           ],
@@ -626,11 +541,9 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     }
     if (Platform.isIOS) {
       showDialog(
-
         barrierDismissible: false,
         context: context,
         builder: (context) => CupertinoAlertDialog(
-
           title: const Text("Location Disabled"),
           content:
               const Text("Location is disabled please allow in app settings"),
@@ -640,12 +553,23 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                   AppSettings.openAppSettings();
                   Navigator.pop(context);
                 },
-                child: const Text("Allow",style: TextStyle(color: Colors.black),)),
+                child: const Text(
+                  "Allow",
+                  style: TextStyle(color: Colors.black),
+                )),
             TextButton(
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(context, CupertinoPageRoute(builder: (context) => const Home(),), (route) => false);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => const Home(),
+                      ),
+                      (route) => false);
                 },
-                child: const Text("Cancel",style: TextStyle(color: Colors.black),))
+                child: const Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.black),
+                ))
           ],
         ),
       );
@@ -676,6 +600,16 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
           listData = prediction;
         });
       }
+    }
+  }
+
+  void clearList() {
+    searchController.clear();
+    listData = [];
+    FocusScopeNode currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
     }
   }
 }

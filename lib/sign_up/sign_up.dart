@@ -66,253 +66,254 @@ class _SignUpState extends State<SignUp> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: CupertinoColors.extraLightBackgroundGray,
+      backgroundColor: const Color(0xffFFC8B0),
       resizeToAvoidBottomInset: false,
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SafeArea(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width / 15,
+      body: LayoutBuilder(
+        builder:(context, constraints) =>  SingleChildScrollView(
+          child: Column(
+            children: [
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width / 15,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.arrow_back_ios,
+                            color: Platform.isIOS ? Colors.blue : Colors.black),
+                        Text(
+                          "Back",
+                          style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.width / 25,
+                              fontWeight: FontWeight.w400,
+                              color: Platform.isIOS ? Colors.blue : Colors.black),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
+              ),
+              DelayedDisplay(
+                slidingCurve: Curves.easeInOut,
+                child: Text(
+                  "Hello!",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Nunito",
+                      fontSize: MediaQuery.of(context).size.width / 15),
+                ),
+              ),
+              DelayedDisplay(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width / 20),
                   child: Row(
                     children: [
-                      Icon(Icons.arrow_back_ios,
-                          color: Platform.isIOS ? Colors.blue : Colors.black),
                       Text(
-                        "Back",
+                        textAlign: TextAlign.start,
+                        "Create an account\n& Start using GlobeBricks",
                         style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width / 25,
-                            fontWeight: FontWeight.w400,
-                            color: Platform.isIOS ? Colors.blue : Colors.black),
+                            color: Colors.black54,
+                            fontFamily: "Nunito",
+                            fontSize: MediaQuery.of(context).size.width / 20),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
-            DelayedDisplay(
-              slidingCurve: Curves.easeInOut,
-              child: Text(
-                "Hello!",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "Nunito",
-                    fontSize: MediaQuery.of(context).size.width / 15),
-              ),
-            ),
-            DelayedDisplay(
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.width / 20),
-                child: Row(
-                  children: [
-                    Text(
-                      textAlign: TextAlign.start,
-                      "Create an account\n& Start using GlobeBricks",
-                      style: TextStyle(
-                          color: Colors.black54,
-                          fontFamily: "Nunito",
-                          fontSize: MediaQuery.of(context).size.width / 20),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 2,
-              child: Image.asset(
-                "assets/logo.png",
+              SizedBox(
                 width: MediaQuery.of(context).size.width / 2,
-              ),
-            ),
-            Form(
-              key: _emailKey,
-              child: DelayedDisplay(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width / 15,
-                      right: MediaQuery.of(context).size.width / 15),
-                  child: TextFormField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Enter your Email";
-                      } else if (!EmailValidator.validate(
-                          emailController.value.text)) {
-                        return "Email is Invalid";
-                      } else {
-                        return null;
-                      }
-                    },
-                    showCursor: true,
-                    decoration: InputDecoration(
-                        errorStyle: const TextStyle(color: Colors.black),
-                        filled: true,
-                        hintText: "Email",
-                        prefixIcon: const Icon(Icons.email_outlined,
-                            color: Colors.black54, size: 20),
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        )),
-                  ),
+                child: Image.asset(
+                  "assets/logo.png",
+                  width: MediaQuery.of(context).size.width / 2,
                 ),
               ),
-            ),
-            Form(
-              key: _passwordKey,
-              child: DelayedDisplay(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.width / 10,
-                    right: MediaQuery.of(context).size.width / 10,
-                    top: MediaQuery.of(context).size.width / 20,
-                    bottom: MediaQuery.of(context).size.width / 20,
-                  ),
-                  child: TextFormField(
-                    controller: passwordController,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Enter your password";
-                      } else if (value.length < 7) {
-                        return "Password should 8 characters";
-                      } else {
-                        return null;
-                      }
-                    },
-                    showCursor: true,
-                    decoration: InputDecoration(
-                        errorStyle: const TextStyle(color: Colors.black),
-                        filled: true,
-                        hintText: "Password",
-                        prefixIcon: const Icon(Icons.lock,
-                            color: Colors.black54, size: 20),
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        )),
-                  ),
-                ),
-              ),
-            ),
-            DelayedDisplay(
-                child: _serverConnect
-                    ? Platform.isIOS
-                        ? const CupertinoActivityIndicator()
-                        : const CircularProgressIndicator()
-                    : CupertinoButton(
-                        borderRadius: BorderRadius.circular(10),
-                        onPressed: () {
-                          if (_emailKey.currentState!.validate() &
-                              _passwordKey.currentState!.validate()) {
-                            login(emailController.value.text,
-                                passwordController.value.text);
-                          }
-                        },
-                        color: Colors.black,
-                        child: const Text("Sign Up",
-                            style: TextStyle(
-                                color: Colors.white,
-                                letterSpacing: 1.5,
-                                fontFamily: "Nunito")),
-                      )),
-            Padding(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height / 30,
-                left: MediaQuery.of(context).size.height / 30,
-                right: MediaQuery.of(context).size.height / 30,
-              ),
-              child: GestureDetector(
-                onTap: () async {
-                  Platform.isIOS
-                      ? _launchUniversalLinkIos(toLaunch)
-                      : _launchInBrowser(toLaunch);
-                },
-                child: RichText(
-                  text: TextSpan(
-                    text: 'By signing up, you agree to our ',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.width / 30,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: 'Terms,',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: MediaQuery.of(context).size.width / 30,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' Privacy Policy',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: MediaQuery.of(context).size.width / 30,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' and ',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.width / 30,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'Cookies Policy',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: MediaQuery.of(context).size.width / 30,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height / 30,
-                left: MediaQuery.of(context).size.height / 30,
-                right: MediaQuery.of(context).size.height / 30,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Already have an account?",),
-                  TextButton(
-                      onPressed: () {
-                        if (Platform.isAndroid) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Login(),
-                            ),
-                          );
-                        }
-                        if (Platform.isIOS) {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (context) => const Login(),
-                            ),
-                          );
+              Form(
+                key: _emailKey,
+                child: DelayedDisplay(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width / 15,
+                        right: MediaQuery.of(context).size.width / 15),
+                    child: TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Enter your Email";
+                        } else if (!EmailValidator.validate(
+                            emailController.value.text)) {
+                          return "Email is Invalid";
+                        } else {
+                          return null;
                         }
                       },
-                      child: const Text("Login"))
-                ],
+                      showCursor: true,
+                      decoration: InputDecoration(
+                          errorStyle: const TextStyle(color: Colors.black),
+                          filled: true,
+                          hintText: "Email",
+                          prefixIcon: const Icon(Icons.email_outlined,
+                              color: Colors.black54, size: 20),
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          )),
+                    ),
+                  ),
+                ),
               ),
-            )
-          ],
+              Form(
+                key: _passwordKey,
+                child: DelayedDisplay(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width / 10,
+                      right: MediaQuery.of(context).size.width / 10,
+                      top: MediaQuery.of(context).size.width / 20,
+                      bottom: MediaQuery.of(context).size.width / 20,
+                    ),
+                    child: TextFormField(
+                      controller: passwordController,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Enter your password";
+                        } else if (value.length < 7) {
+                          return "Password should 8 characters";
+                        } else {
+                          return null;
+                        }
+                      },
+                      showCursor: true,
+                      decoration: InputDecoration(
+                          errorStyle: const TextStyle(color: Colors.black),
+                          filled: true,
+                          hintText: "Password",
+                          prefixIcon: const Icon(Icons.lock,
+                              color: Colors.black54, size: 20),
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          )),
+                    ),
+                  ),
+                ),
+              ),
+              DelayedDisplay(
+                  child: _serverConnect
+                      ? Platform.isIOS
+                          ? const CupertinoActivityIndicator()
+                          : const CircularProgressIndicator()
+                      : CupertinoButton(
+                          borderRadius: BorderRadius.circular(10),
+                          onPressed: () {
+                            if (_emailKey.currentState!.validate() &
+                                _passwordKey.currentState!.validate()) {
+                              login(emailController.value.text,
+                                  passwordController.value.text);
+                            }
+                          },
+                          color: Colors.black,
+                          child: const Text("Sign Up",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                  fontFamily: "Nunito")),
+                        )),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height / 30,
+                  left: MediaQuery.of(context).size.height / 30,
+                  right: MediaQuery.of(context).size.height / 30,
+                ),
+                child: GestureDetector(
+                  onTap: () async {
+                    Platform.isIOS
+                        ? _launchUniversalLinkIos(toLaunch)
+                        : _launchInBrowser(toLaunch);
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'By signing up, you agree to our ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: MediaQuery.of(context).size.width / 30,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Terms,',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: MediaQuery.of(context).size.width / 30,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' Privacy Policy',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: MediaQuery.of(context).size.width / 30,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' and ',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: MediaQuery.of(context).size.width / 30,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Cookies Policy',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: MediaQuery.of(context).size.width / 30,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height / 30,
+                  left: MediaQuery.of(context).size.height / 30,
+                  right: MediaQuery.of(context).size.height / 30,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Already have an account?",),
+                    TextButton(
+                        onPressed: () {
+                          if (Platform.isAndroid) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Login(),
+                              ),
+                            );
+                          }
+                          if (Platform.isIOS) {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => const Login(),
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text("Login"))
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

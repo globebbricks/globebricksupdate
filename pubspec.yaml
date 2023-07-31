@@ -54,6 +54,8 @@ dependencies:
   geoflutterfire2: ^2.3.15
   app_settings: ^5.0.0
   firebase_storage: ^11.2.5
+  shimmer: ^3.0.0
+  chips_choice: ^3.0.0
 
 
 dev_dependencies:
@@ -81,6 +83,7 @@ flutter:
   assets:
     - assets/
     - assets/filter/
+    - assets/features/
 
   fonts:
     - family: Mukta
@@ -95,10 +98,6 @@ flutter:
       fonts:
         - asset: fonts/Whatsapp.ttf
 
-
-    - family: MyFlutterApp
-      fonts:
-        - asset: fonts/MyFlutterApp.ttf
 
     - family: LeagueSpartan
       fonts:

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:globebricks/assistants/data.dart';
@@ -27,8 +28,8 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
     "Flatmates",
     "Commercial",
     "Plot/land",
-    "Collaboration",
   ];
+  List<String> filterRentList = ["1Bhk", "2Bhk", "3Bhk", "4Bhk", "5Bhk"];
 
   bool chipSelected = false;
 
@@ -133,29 +134,36 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontFamily: "Nunito",
-                              fontSize: MediaQuery.of(context).size.width / 15)),
+                              fontSize:
+                                  MediaQuery.of(context).size.width / 15)),
                       SizedBox(
-                          height: MediaQuery.of(context).size.height/3,
+                          height: MediaQuery.of(context).size.height / 3,
                           child: filter(_choiceChipsList[_selectedIndex])),
                       CupertinoButton(
-                        color: Colors.green,
+                          color: Colors.green,
                           onPressed: () {
-                            if (Platform.isAndroid) {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                         const PropertySearching(propertyType: '1Bhk',),
-                                  ));
-                            }
-                            if (Platform.isIOS) {
-                              Navigator.pushReplacement(
-                                  context,
-                                  CupertinoPageRoute(
-                                    builder: (context) =>
-                                        const PropertySearching(propertyType: '1Bhk',),
-
-                                  ));
+                            if (tags.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    backgroundColor: Colors.red,
+                                      content: Text("Select Given Options 😔")));
+                            } else {
+                              if (Platform.isAndroid) {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PropertySearching(
+                                          propertyFilter: tags),
+                                    ));
+                              }
+                              if (Platform.isIOS) {
+                                Navigator.pushReplacement(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (context) => PropertySearching(
+                                          propertyFilter: tags),
+                                    ));
+                              }
                             }
                           },
                           child: const Text("Search"))
@@ -195,12 +203,50 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
     return chips;
   }
 
+  List<String> tags = [];
+  List<String> options = [
+    '1 Rk',
+    '1 Bhk',
+    '2 Bhk',
+    '3 Bhk',
+    '4 Bhk',
+    '5 Bhk',
+  ];
+
   Widget filter(String propertyType) {
     switch (propertyType) {
       case ("Rent"):
         {
-          return const LottieAnimate(
-              assetName: "assets/filter/filterHome.json");
+          return Column(
+            children: [
+              ChipsChoice<String>.multiple(
+                choiceCheckmark: true,
+                value: tags,
+                onChanged: (val) => setState(() => tags = val),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: options,
+                  value: (i, v) => v,
+                  label: (i, v) => v,
+                  tooltip: (i, v) => v,
+                  style: (i, v) {
+                    return C2ChipStyle.toned(
+                      backgroundColor: Colors.red,
+                      checkmarkSize: MediaQuery.of(context).size.width / 25,
+                      checkmarkColor: Colors.orange,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(5),
+                      ),
+                    );
+                  },
+                ),
+                wrapped: true,
+              ),
+              const Flexible(
+                child:
+                    LottieAnimate(assetName: "assets/filter/filterHome.json"),
+              ),
+            ],
+          );
         }
       case ("Buy"):
         {
