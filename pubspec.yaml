@@ -51,11 +51,11 @@ dependencies:
   email_validator: ^2.1.17
   firebase_app_check: ^0.1.5
   shared_preferences: ^2.2.0
-  geoflutterfire2: ^2.3.15
   app_settings: ^5.0.0
   firebase_storage: ^11.2.5
   shimmer: ^3.0.0
   chips_choice: ^3.0.0
+  geoflutterfire_plus: ^0.0.16
 
 
 dev_dependencies:

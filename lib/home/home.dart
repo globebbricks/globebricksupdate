@@ -5,7 +5,7 @@ import 'package:delayed_display/delayed_display.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 import 'package:globebricks/assistants/data.dart';
 import 'package:globebricks/profile.dart';
 import 'package:globebricks/serach_field/search.dart';
@@ -337,21 +337,15 @@ class _HomeState extends State<Home>
                               ),
                               TextButton(
                                 onPressed: () {
-                                  final geo = GeoFlutterFire();
-                                  final firestore = FirebaseFirestore.instance;
-                                  GeoFirePoint location = geo.point(
-                                      latitude: UserData.latitude,
-                                      longitude: UserData.longitude);
-                                  firestore
-                                      .collection('globeBricks')
-                                      .doc("propertyRent")
-                                      .collection("data")
-                                      .add({
-                                    'userId':
-                                        FirebaseAuth.instance.currentUser!.uid,
-                                    'position': location.data,
-                                    "propertyType" : "2Bhk"
-                                  });
+                                  const GeoFirePoint geoFirePoint = GeoFirePoint(GeoPoint(35.681236, 139.767125));
+                                  final Map<String, dynamic> data = geoFirePoint.data;
+                                  FirebaseFirestore.instance.collection('locations').add(
+                                    <String, dynamic>{
+                                      'geo': geoFirePoint.data,
+                                      'name': 'Tokyo Station',
+                                      'isVisible': true,
+                                    },
+                                  );
                                   // if (Platform.isAndroid) {
                                   //   Navigator.push(
                                   //       context,
