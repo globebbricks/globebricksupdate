@@ -143,6 +143,7 @@ class _PropertySearchingState extends State<PropertySearching>
                                 if (loadingProgress == null) {
                                   return child;
                                 }
+
                                 return Shimmer.fromColors(
                                   baseColor: Colors.grey.shade300,
                                   highlightColor: Colors.grey.shade100,
