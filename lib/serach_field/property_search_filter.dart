@@ -1,11 +1,13 @@
 import 'dart:io';
-
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:globebricks/assistants/data.dart';
-import 'package:globebricks/lottie_animation/animation.dart';
-import 'package:globebricks/serach_field/property_searching.dart';
+import 'package:globebricks/serach_field/buy_property_searching.dart';
+import 'package:globebricks/serach_field/commericial_property_searching.dart';
+import 'package:globebricks/serach_field/flatmate_searching.dart';
+import 'package:globebricks/serach_field/pg_property_searching.dart';
+import 'package:globebricks/serach_field/rent_property_searching.dart';
 
 class PropertySearchFilter extends StatefulWidget {
   const PropertySearchFilter({super.key});
@@ -14,10 +16,7 @@ class PropertySearchFilter extends StatefulWidget {
   State<PropertySearchFilter> createState() => _PropertySearchFilterState();
 }
 
-class _PropertySearchFilterState extends State<PropertySearchFilter>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
+class _PropertySearchFilterState extends State<PropertySearchFilter> {
   bool selected = false;
   int _selectedIndex = 0;
 
@@ -27,23 +26,10 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
     "PG",
     "Flatmates",
     "Commercial",
-    "Plot/land",
   ];
-  List<String> filterRentList = ["1Bhk", "2Bhk", "3Bhk", "4Bhk", "5Bhk"];
 
   bool chipSelected = false;
-
-  @override
-  void initState() {
-    _controller = AnimationController(vsync: this);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  double radius = 500;
 
   @override
   Widget build(BuildContext context) {
@@ -61,34 +47,24 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
                   width: MediaQuery.of(context).size.width / 4,
                 ),
               ),
-              const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.location_on,
-                    color: Colors.green,
-                  )),
-              Padding(
-                padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.width / 15,
-                    bottom: MediaQuery.of(context).size.width / 15),
-                child: Text(
-                  UserData.address,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: "Nunito",
-                    fontWeight: FontWeight.bold,
-                    fontSize: MediaQuery.of(context).size.height / 60,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  softWrap: false,
-                  maxLines: 2,
-                ),
-              ),
               Padding(
                 padding: EdgeInsets.only(
                     left: MediaQuery.of(context).size.width / 15),
                 child: Column(
                   children: [
+                    Row(children: [
+                      Expanded(
+                        child: Text(
+                            "Explore real estate options at your desired location",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: TextStyle(
+                                fontFamily: "Nunito",
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 25)),
+                      ),
+                    ]),
                     Row(
                       children: [
                         Text(
@@ -99,18 +75,6 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
                         ),
                       ],
                     ),
-                    Row(children: [
-                      Expanded(
-                        child: Text(
-                            "Explore real estate options at selected location",
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width / 30)),
-                      ),
-                    ]),
                   ],
                 ),
               ),
@@ -122,7 +86,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
               Padding(
                 padding: EdgeInsets.all(MediaQuery.of(context).size.width / 60),
                 child: Container(
-                  height: MediaQuery.of(context).size.height / 2,
+                  height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
@@ -139,34 +103,54 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
                       SizedBox(
                           height: MediaQuery.of(context).size.height / 3,
                           child: filter(_choiceChipsList[_selectedIndex])),
-                      CupertinoButton(
-                          color: Colors.green,
-                          onPressed: () {
-                            if (tags.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: Colors.red,
-                                      content: Text("Select Given Options 😔")));
-                            } else {
-                              if (Platform.isAndroid) {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PropertySearching(
-                                          propertyFilter: tags),
-                                    ));
-                              }
-                              if (Platform.isIOS) {
-                                Navigator.pushReplacement(
-                                    context,
-                                    CupertinoPageRoute(
-                                      builder: (context) => PropertySearching(
-                                          propertyFilter: tags),
-                                    ));
-                              }
-                            }
-                          },
-                          child: const Text("Search"))
+                      Slider(
+                        inactiveColor: Colors.red[100],
+                        activeColor: Colors.green,
+                        thumbColor: Colors.black87,
+                        label: "Search Under ${radius.toInt()} Meters ",
+                        divisions: 100,
+                        max: 10000,
+                        value: radius,
+                        onChangeEnd: (value) {
+                          setState(() {
+                            radius = value.roundToDouble();
+                          });
+                        },
+                        onChanged: (double value) {},
+                      ),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50)),
+                        elevation: 0.5,
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width / 15,
+                            bottom: MediaQuery.of(context).size.width / 15),
+                        child: Text(
+                          UserData.address,
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontFamily: "Nunito",
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.height / 60,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          softWrap: false,
+                          maxLines: 2,
+                        ),
+                      ),
+                      Text(
+                        "Search under ${radius.toInt().toString()} Meters",
+                        style: const TextStyle(fontFamily: "Nunito"),
+                      ),
                     ]),
                   ),
                 ),
@@ -203,14 +187,36 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
     return chips;
   }
 
-  List<String> tags = [];
-  List<String> options = [
+  List<String> rentTags = [];
+  List<String> buyTags = [];
+  List<String> pgTags = [];
+  List<String> flatmateTags = [];
+  List<String> commericialTags = [];
+  List<String> rentOptions = [
     '1 Rk',
     '1 Bhk',
     '2 Bhk',
     '3 Bhk',
     '4 Bhk',
     '5 Bhk',
+  ];
+  List<String> buyOptions = [
+    'House',
+    'Apartment',
+    'Building',
+    'Floor',
+    "Plot/Land",
+  ];
+  List<String> pgOptions = [
+    'Male',
+    'Female',
+  ];
+  List<String> flatmateOptions = ['Male', 'Female', 'LGBTQ'];
+  List<String> commercialOptions = [
+    'Office Space',
+    'Shop',
+    'Commercial Floor',
+    "Commercial Plot/Land",
   ];
 
   Widget filter(String propertyType) {
@@ -221,10 +227,10 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
             children: [
               ChipsChoice<String>.multiple(
                 choiceCheckmark: true,
-                value: tags,
-                onChanged: (val) => setState(() => tags = val),
+                value: rentTags,
+                onChanged: (val) => setState(() => rentTags = val),
                 choiceItems: C2Choice.listFrom<String, String>(
-                  source: options,
+                  source: rentOptions,
                   value: (i, v) => v,
                   label: (i, v) => v,
                   tooltip: (i, v) => v,
@@ -241,43 +247,302 @@ class _PropertySearchFilterState extends State<PropertySearchFilter>
                 ),
                 wrapped: true,
               ),
-              const Flexible(
-                child:
-                    LottieAnimate(assetName: "assets/filter/filterHome.json"),
-              ),
+              Flexible(child: Image.asset("assets/filter/filterHome.png")),
+              CupertinoButton(
+                  color: Colors.green,
+                  onPressed: () {
+                    if (rentTags.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Select Given Options 😔")));
+                    } else {
+                      double range = radius / 1000;
+                      if (Platform.isAndroid) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RentPropertySearching(
+                                propertyFilter: rentTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                      if (Platform.isIOS) {
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => RentPropertySearching(
+                                propertyFilter: rentTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                    }
+                  },
+                  child: const Text("Search")),
             ],
           );
         }
       case ("Buy"):
         {
-          return const LottieAnimate(assetName: "assets/filter/filterBuy.json");
+          return Column(
+            children: [
+              ChipsChoice<String>.multiple(
+                choiceCheckmark: true,
+                value: buyTags,
+                onChanged: (val) => setState(() => buyTags = val),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: buyOptions,
+                  value: (i, v) => v,
+                  label: (i, v) => v,
+                  tooltip: (i, v) => v,
+                  style: (i, v) {
+                    return C2ChipStyle.toned(
+                      backgroundColor: Colors.red,
+                      checkmarkSize: MediaQuery.of(context).size.width / 25,
+                      checkmarkColor: Colors.orange,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(5),
+                      ),
+                    );
+                  },
+                ),
+                wrapped: true,
+              ),
+              Flexible(child: Image.asset("assets/filter/filterBuy.png")),
+              CupertinoButton(
+                  color: Colors.green,
+                  onPressed: () {
+                    if (buyTags.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Select Given Options 😔")));
+                    } else {
+                      double range = radius / 1000;
+                      if (Platform.isAndroid) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BuyPropertySearching(
+                                propertyFilter: buyTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                      if (Platform.isIOS) {
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => BuyPropertySearching(
+                                propertyFilter: buyTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                    }
+                  },
+                  child: const Text("Search")),
+            ],
+          );
         }
       case ("PG"):
         {
-          return const LottieAnimate(
-              assetName: "assets/filter/filterHome.json");
+          return Column(
+            children: [
+              ChipsChoice<String>.multiple(
+                choiceCheckmark: true,
+                value: pgTags,
+                onChanged: (val) => setState(() => pgTags = val),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: pgOptions,
+                  value: (i, v) => v,
+                  label: (i, v) => v,
+                  tooltip: (i, v) => v,
+                  style: (i, v) {
+                    return C2ChipStyle.toned(
+                      backgroundColor: Colors.red,
+                      checkmarkSize: MediaQuery.of(context).size.width / 25,
+                      checkmarkColor: Colors.orange,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(5),
+                      ),
+                    );
+                  },
+                ),
+                wrapped: true,
+              ),
+              Flexible(
+                child: Image.asset("assets/filter/filterPg.png"),
+              ),
+              CupertinoButton(
+                  color: Colors.green,
+                  onPressed: () {
+                    if (pgTags.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Select Given Options 😔")));
+                    } else {
+                      double range = radius / 1000;
+
+                      if (Platform.isAndroid) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PgPropertySearching(
+                                propertyFilter: pgTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                      if (Platform.isIOS) {
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => PgPropertySearching(
+                                propertyFilter: pgTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                    }
+                  },
+                  child: const Text("Search")),
+            ],
+          );
         }
       case ("Flatmates"):
         {
-          return const LottieAnimate(
-              assetName: "assets/filter/filterHome.json");
+          return Column(
+            children: [
+              ChipsChoice<String>.multiple(
+                choiceCheckmark: true,
+                value: flatmateTags,
+                onChanged: (val) => setState(() => flatmateTags = val),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: flatmateOptions,
+                  value: (i, v) => v,
+                  label: (i, v) => v,
+                  tooltip: (i, v) => v,
+                  style: (i, v) {
+                    return C2ChipStyle.toned(
+                      backgroundColor: Colors.red,
+                      checkmarkSize: MediaQuery.of(context).size.width / 25,
+                      checkmarkColor: Colors.orange,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(5),
+                      ),
+                    );
+                  },
+                ),
+                wrapped: true,
+              ),
+              Flexible(
+                child: Image.asset("assets/filter/filterFlatmates.png"),
+              ),
+              CupertinoButton(
+                  color: Colors.green,
+                  onPressed: () {
+                    if (flatmateTags.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Select Given Options 😔")));
+                    } else {
+                      double range = radius / 1000;
+
+                      if (Platform.isAndroid) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FlatmateSearching(
+                                propertyFilter: flatmateTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                      if (Platform.isIOS) {
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => FlatmateSearching(
+                                propertyFilter: flatmateTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                    }
+                  },
+                  child: const Text("Search")),
+            ],
+          );
         }
       case ("Commercial"):
         {
-          return const LottieAnimate(
-              assetName: "assets/filter/filterHome.json");
-        }
-      case ("Plot/land"):
-        {
-          return const LottieAnimate(
-              assetName: "assets/filter/filterHome.json");
-        }
-      case ("Collaboration"):
-        {
-          return const LottieAnimate(
-              assetName: "assets/filter/filterHome.json");
+          return Column(
+            children: [
+              ChipsChoice<String>.multiple(
+                choiceCheckmark: true,
+                value: commericialTags,
+                onChanged: (val) => setState(() => commericialTags = val),
+                choiceItems: C2Choice.listFrom<String, String>(
+                  source: commercialOptions,
+                  value: (i, v) => v,
+                  label: (i, v) => v,
+                  tooltip: (i, v) => v,
+                  style: (i, v) {
+                    return C2ChipStyle.toned(
+                      backgroundColor: Colors.red,
+                      checkmarkSize: MediaQuery.of(context).size.width / 25,
+                      checkmarkColor: Colors.orange,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(5),
+                      ),
+                    );
+                  },
+                ),
+                wrapped: true,
+              ),
+              Flexible(
+                child: Image.asset("assets/filter/filterCommercial.png"),
+              ),
+              CupertinoButton(
+                  color: Colors.green,
+                  onPressed: () {
+                    if (commericialTags.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text("Select Given Options 😔")));
+                    } else {
+                      double range = radius / 1000;
+
+                      if (Platform.isAndroid) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CommericialPropertySearching(
+                                propertyFilter: commericialTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                      if (Platform.isIOS) {
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) =>
+                                  CommericialPropertySearching(
+                                propertyFilter: commericialTags,
+                                radius: range,
+                              ),
+                            ));
+                      }
+                    }
+                  },
+                  child: const Text("Search")),
+            ],
+          );
         }
     }
-    return const LottieAnimate(assetName: "assets/filter/filterHome.json");
+    return Container();
   }
 }

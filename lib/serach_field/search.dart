@@ -12,7 +12,8 @@ import 'package:globebricks/home/home.dart';
 import 'package:globebricks/lottie_animation/animation.dart';
 import 'package:globebricks/serach_field/property_search_filter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:sliding_up_panel2/sliding_up_panel2.dart';
+
 
 class SearchField extends StatefulWidget {
   const SearchField({super.key});
@@ -281,7 +282,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                     MediaQuery.of(context).size.height / 3,
                 parallaxEnabled: true,
                 parallaxOffset: .5,
-                panelBuilder: (sc) => _panel(sc),
+                panelBuilder: () =>  _panel(),
                 borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(18.0),
                     topRight: Radius.circular(18.0)),
@@ -295,7 +296,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
 
   bool locating = false;
 
-  _panel(ScrollController sc) {
+  _panel( ) {
     return Scaffold(
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -451,17 +452,18 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     refController = controller;
 
     controller.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
     String data = await RequestMethods.searchCoordinateRequests(
         LatLng(position.latitude, position.longitude));
     UserData.latitude = position.latitude;
     UserData.longitude = position.longitude;
     UserData.address = data;
-setState(() {
-  myLocationMarker();
-  address = data;
-  locating = true;
-});
 
+    setState(() {
+      myLocationMarker();
+      address = data;
+      locating = true;
+    });
   }
 
   void myLocationMarker() {
@@ -503,7 +505,9 @@ setState(() {
     _determinePosition();
   }
 
-  void onPaused() {}
+  void onPaused() {
+
+  }
 
   void onInactive() {}
 
