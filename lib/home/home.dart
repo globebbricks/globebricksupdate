@@ -410,6 +410,7 @@ class _HomeState extends State<Home>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
+
                             LoadHomeCards(
                               imageLink:
                                   'https://firebasestorage.googleapis.com/v0/b/globebricksproject.appspot.com/o/design%2FhomeCardImages%2FrealEstate.png?alt=media&token=7865e63b-7220-4d6f-897b-ba5676939e6c',
