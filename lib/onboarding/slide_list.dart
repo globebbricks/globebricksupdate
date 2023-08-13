@@ -30,7 +30,7 @@ final slideList = [
    Slide(
       title: "Repair Property",
       description:
-      "We have dedicated professionals that helps to repair your property.",
+      "We have dedicated professionals that helps to\nrepair your property.",
       image: "assets/people.json"),
 
 ];

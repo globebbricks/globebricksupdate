@@ -10,10 +10,9 @@ import 'package:globebricks/assistants/map_key.dart';
 import 'package:globebricks/assistants/request_api.dart';
 import 'package:globebricks/home/home.dart';
 import 'package:globebricks/lottie_animation/animation.dart';
-import 'package:globebricks/serach_field/property_search_filter.dart';
+import 'package:globebricks/search_field/property_search_filter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
-
 
 class SearchField extends StatefulWidget {
   const SearchField({super.key});
@@ -36,6 +35,9 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
   late double customLongitude;
 
   double radius = 500;
+
+  late String mapStyle;
+
 
   @override
   void initState() {
@@ -83,19 +85,6 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
             style: TextStyle(color: Colors.black87),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white,
-          onPressed: () {
-            setState(() {
-              _determinePosition();
-              myLocationMarker();
-            });
-          },
-          child: const Icon(
-            Icons.location_on,
-            color: Colors.green,
-          ),
-        ),
         resizeToAvoidBottomInset: false,
         body: Stack(
           alignment: Alignment.topCenter,
@@ -120,9 +109,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                 child: Column(
                   children: [
                     DelayedDisplay(
-                        child: Padding(
-                      padding: EdgeInsets.all(
-                          MediaQuery.of(context).size.width / 20),
+                        child: Card(
                       child: TextFormField(
                         controller: searchController,
                         onChanged: (value) {
@@ -146,8 +133,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                                 color: Colors.black38, fontFamily: "Nunito"),
                             fillColor: Colors.white,
                             filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(40),
+                            border: const OutlineInputBorder(
                               borderSide: BorderSide.none,
                             )),
                       ),
@@ -162,7 +148,6 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                                   onTap: () async {
                                     UserData.address =
                                         "${listData[index]["structured_formatting"]["main_text"] + " ${listData[index]["structured_formatting"]["secondary_text"]}" + " ${listData[index]["description"]}"}";
-
                                     setState(() {
                                       address = UserData.address;
                                     });
@@ -273,6 +258,23 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                 ),
               ),
             ),
+            Positioned(
+              right: MediaQuery.of(context).size.width/25,
+              bottom: MediaQuery.of(context).size.height/2.9,
+              child:FloatingActionButton(
+                backgroundColor: Colors.white,
+                onPressed: () {
+                  setState(() {
+                    _determinePosition();
+                    myLocationMarker();
+                  });
+                },
+                child: const Icon(
+                  Icons.location_on,
+                  color: Colors.green,
+                ),
+              ),
+            ),
             DelayedDisplay(
               child: SlidingUpPanel(
                 controller: pc,
@@ -282,7 +284,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                     MediaQuery.of(context).size.height / 3,
                 parallaxEnabled: true,
                 parallaxOffset: .5,
-                panelBuilder: () =>  _panel(),
+                panelBuilder: () => _panel(),
                 borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(18.0),
                     topRight: Radius.circular(18.0)),
@@ -296,7 +298,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
 
   bool locating = false;
 
-  _panel( ) {
+  _panel() {
     return Scaffold(
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -325,8 +327,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
             locating
                 ? Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    child: DelayedDisplay(
                       child: Column(
                         children: [
                           const Row(
@@ -355,61 +356,73 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                       ),
                     ),
                   )
+                : Container(),
+
+            SliderTheme(
+             data: SliderThemeData(trackHeight: MediaQuery.of(context).size.width/50),
+              child: Slider(
+                inactiveColor: Colors.grey,
+                activeColor: Colors.indigo[100],
+                thumbColor: Colors.blue,
+                label: "Search Under ${radius.toInt()} Meters ",
+                min: 100,
+                max: 10000,
+                divisions: 100,
+                value: radius,
+                onChanged: (double value) {
+                  setState(() {
+                    radius = value.roundToDouble();
+                  });
+                },
+              ),
+            ),
+
+
+            locating
+                ? CupertinoButton(
+                borderRadius: BorderRadius.circular(30),
+                color: Colors.green,
+                child: const Text(
+                  "Next",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () {
+                  if (Platform.isAndroid) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                          const PropertySearchFilter(),
+                        ));
+                  }
+                  if (Platform.isIOS) {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) =>
+                          const PropertySearchFilter(),
+                        ));
+                  }
+                })
                 : Platform.isIOS
-                    ? const CupertinoActivityIndicator()
-                    : const CircularProgressIndicator(
-                        backgroundColor: Colors.black54,
-                        strokeWidth: 2,
-                      ),
+                ? const CupertinoActivityIndicator()
+                : const CircularProgressIndicator(),
+
             const LottieAnimate(
               assetName: 'assets/search.json',
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                textAlign: TextAlign.center,
-                "We will give you relevant results according to your select location ",
+                "We will give you accurate results according to your selected location & service",
                 style: TextStyle(
+                  color: Colors.black54,
                     fontSize: MediaQuery.of(context).size.width / 25,
                     fontFamily: "Nunito"),
               ),
             ),
-            locating
-                ? Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height / 15),
-                    child: CupertinoButton(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.green,
-                        child: const Text(
-                          "Next",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        onPressed: () {
-                          if (Platform.isAndroid) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PropertySearchFilter(),
-                                ));
-                          }
-                          if (Platform.isIOS) {
-                            Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (context) =>
-                                      const PropertySearchFilter(),
-                                ));
-                          }
-                        }),
-                  )
-                : const Text("Please Wait.."),
-            SizedBox(
-              height: MediaQuery.of(context).size.height / 7,
-            )
           ],
         ),
       ),
@@ -459,6 +472,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     UserData.longitude = position.longitude;
     UserData.address = data;
 
+
     setState(() {
       myLocationMarker();
       address = data;
@@ -505,9 +519,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     _determinePosition();
   }
 
-  void onPaused() {
-
-  }
+  void onPaused() {}
 
   void onInactive() {}
 
@@ -591,12 +603,13 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     setState(() {
       address = UserData.address;
     });
+
   }
 
-  Future<void> _placeApiRequest(String userkeyboardData) async {
-    if (userkeyboardData.length > 1) {
+  Future<void> _placeApiRequest(String userkeyboard) async {
+    if (userkeyboard.length > 1) {
       String autoComplete =
-          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$userkeyboardData&location=${UserData.latitude}%2C${UserData.longitude}&radius=100&key=${MapKey.key}";
+          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$userkeyboard&location=${UserData.latitude}%2C${UserData.longitude}&radius=100&key=${MapKey.key}";
       var response = await RequestApi.getRequestUrl(autoComplete);
       if (response["status"] == "OK") {
         var prediction = response["predictions"];

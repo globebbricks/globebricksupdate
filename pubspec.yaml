@@ -57,6 +57,7 @@ dependencies:
   geoflutterfire_plus: ^0.0.16
   sliding_up_panel2: ^3.3.0+1
   google_nav_bar: ^5.0.6
+  connectivity_plus: ^4.0.2
 
 
 dev_dependencies:

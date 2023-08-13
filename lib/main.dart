@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,9 +6,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:globebricks/authentication/phone_authentication.dart';
 import 'package:globebricks/firebase_options.dart';
 import 'package:globebricks/home/home.dart';
-import 'package:globebricks/login/login.dart';
 import 'package:globebricks/onboarding/onboard.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +47,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-
   bool loaded = true;
 
   @override
@@ -65,37 +65,39 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => Future.delayed(const Duration(milliseconds: 3000), () async {
-              if (loaded) {
-                if (FirebaseAuth.instance.currentUser != null) {
-                  loaded = false;
-                  if (Platform.isAndroid) {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Home(),
-                        ),
-                        (route) => false);
-                  }
-                  if (Platform.isIOS) {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) => const Home(),
-                        ),
-                        (route) => false);
-                  }
-                } else {
-                  loaded = false;
-                  userStateSave();
-                }
-              }
-            }));
+
+           if (loaded) {
+             if (FirebaseAuth.instance.currentUser != null) {
+               loaded = false;
+               if (Platform.isAndroid) {
+                 Navigator.pushAndRemoveUntil(
+                     context,
+                     MaterialPageRoute(
+                       builder: (context) => const Home(),
+                     ),
+                         (route) => false);
+               }
+               if (Platform.isIOS) {
+                 Navigator.pushAndRemoveUntil(
+                     context,
+                     CupertinoPageRoute(
+                       builder: (context) => const Home(),
+                     ),
+                         (route) => false);
+               }
+             } else {
+               loaded = false;
+               userStateSave();
+             }
+           }
+
+        }));
 
     return Scaffold(
       backgroundColor: const
       Color(0xffe29587),
 
-      body: SafeArea(
+      body:  SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage>
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const Login(),
+              builder: (context) => const PhoneAuthentication(),
             ),
             (route) => false);
       }
@@ -146,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
         Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute(
-              builder: (context) => const Login(),
+              builder: (context) => const PhoneAuthentication(),
             ),
             (route) => false);
       }

@@ -3,11 +3,12 @@ import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:globebricks/assistants/data.dart';
-import 'package:globebricks/serach_field/buy_property_searching.dart';
-import 'package:globebricks/serach_field/commericial_property_searching.dart';
-import 'package:globebricks/serach_field/flatmate_searching.dart';
-import 'package:globebricks/serach_field/pg_property_searching.dart';
-import 'package:globebricks/serach_field/rent_property_searching.dart';
+import 'package:globebricks/search_field/buy_property_searching.dart';
+import 'package:globebricks/search_field/commercial_property_searching.dart';
+import 'package:globebricks/search_field/flatmate_searching.dart';
+import 'package:globebricks/search_field/pg_property_searching.dart';
+import 'package:globebricks/search_field/rent_property_searching.dart';
+
 
 class PropertySearchFilter extends StatefulWidget {
   const PropertySearchFilter({super.key});
@@ -40,6 +41,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+
               SizedBox(
                 width: MediaQuery.of(context).size.width / 4,
                 child: Image.asset(
@@ -83,6 +85,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                 direction: Axis.horizontal,
                 children: choiceChips(),
               ),
+
               Padding(
                 padding: EdgeInsets.all(MediaQuery.of(context).size.width / 60),
                 child: Container(
@@ -93,43 +96,20 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                     color: Colors.white,
                   ),
                   child: SingleChildScrollView(
-                    child: Column(children: [
-                      Text(_choiceChipsList[_selectedIndex],
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Nunito",
-                              fontSize:
-                                  MediaQuery.of(context).size.width / 15)),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height / 3,
-                          child: filter(_choiceChipsList[_selectedIndex])),
-                      Slider(
-                        inactiveColor: Colors.red[100],
-                        activeColor: Colors.green,
-                        thumbColor: Colors.black87,
-                        label: "Search Under ${radius.toInt()} Meters ",
-                        divisions: 100,
-                        max: 10000,
-                        value: radius,
-                        onChangeEnd: (value) {
-                          setState(() {
-                            radius = value.roundToDouble();
-                          });
-                        },
-                        onChanged: (double value) {},
-                      ),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)),
-                        elevation: 0.5,
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Icon(
-                            Icons.location_on,
-                            color: Colors.green,
-                          ),
+                    child: Column(
+                        children: [
+                          Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      elevation: 0.5,
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.location_on,
+                          color: Colors.green,
                         ),
                       ),
+                    ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width / 15,
@@ -147,10 +127,16 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                           maxLines: 2,
                         ),
                       ),
-                      Text(
-                        "Search under ${radius.toInt().toString()} Meters",
-                        style: const TextStyle(fontFamily: "Nunito"),
-                      ),
+                      Text(_choiceChipsList[_selectedIndex],
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Nunito",
+                              fontSize:
+                                  MediaQuery.of(context).size.width / 15)),
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height / 2,
+                          child: filter(_choiceChipsList[_selectedIndex])),
+
                     ]),
                   ),
                 ),
@@ -191,7 +177,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
   List<String> buyTags = [];
   List<String> pgTags = [];
   List<String> flatmateTags = [];
-  List<String> commericialTags = [];
+  List<String> commercialTags = [];
   List<String> rentOptions = [
     '1 Rk',
     '1 Bhk',
@@ -372,7 +358,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                 wrapped: true,
               ),
               Flexible(
-                child: Image.asset("assets/filter/filterPg.png"),
+                child: Image.asset("assets/filter/filterFlatmates.png"),
               ),
               CupertinoButton(
                   color: Colors.green,
@@ -453,7 +439,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => FlatmateSearching(
+                              builder: (context) => FlatmatesSearching(
                                 propertyFilter: flatmateTags,
                                 radius: range,
                               ),
@@ -463,7 +449,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                              builder: (context) => FlatmateSearching(
+                              builder: (context) => FlatmatesSearching(
                                 propertyFilter: flatmateTags,
                                 radius: range,
                               ),
@@ -481,8 +467,8 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
             children: [
               ChipsChoice<String>.multiple(
                 choiceCheckmark: true,
-                value: commericialTags,
-                onChanged: (val) => setState(() => commericialTags = val),
+                value: commercialTags,
+                onChanged: (val) => setState(() => commercialTags = val),
                 choiceItems: C2Choice.listFrom<String, String>(
                   source: commercialOptions,
                   value: (i, v) => v,
@@ -507,7 +493,7 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
               CupertinoButton(
                   color: Colors.green,
                   onPressed: () {
-                    if (commericialTags.isEmpty) {
+                    if (commercialTags.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                           backgroundColor: Colors.red,
                           content: Text("Select Given Options 😔")));
@@ -519,8 +505,8 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  CommericialPropertySearching(
-                                propertyFilter: commericialTags,
+                                  CommercialPropertySearching(
+                                propertyFilter: commercialTags,
                                 radius: range,
                               ),
                             ));
@@ -530,8 +516,8 @@ class _PropertySearchFilterState extends State<PropertySearchFilter> {
                             context,
                             CupertinoPageRoute(
                               builder: (context) =>
-                                  CommericialPropertySearching(
-                                propertyFilter: commericialTags,
+                                  CommercialPropertySearching(
+                                propertyFilter: commercialTags,
                                 radius: range,
                               ),
                             ));

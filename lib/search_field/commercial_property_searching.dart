@@ -10,16 +10,17 @@ import 'package:globebricks/my_flutter_app_icons.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
 
-class FlatmateSearching extends StatefulWidget {
+class CommercialPropertySearching extends StatefulWidget {
   final List<String> propertyFilter;
   final double radius;
-  const FlatmateSearching({super.key, required this.propertyFilter, required this.radius});
+
+  const CommercialPropertySearching({super.key, required this.propertyFilter, required this.radius});
 
   @override
-  State<FlatmateSearching> createState() => _FlatmateSearchingState();
+  State<CommercialPropertySearching> createState() => _CommercialPropertySearchingState();
 }
 
-class _FlatmateSearchingState extends State<FlatmateSearching> with SingleTickerProviderStateMixin {
+class _CommercialPropertySearchingState extends State<CommercialPropertySearching>  with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   bool loaded = true;
@@ -82,7 +83,7 @@ class _FlatmateSearchingState extends State<FlatmateSearching> with SingleTicker
     const String field = 'geo';
 
     final CollectionReference<Map<String, dynamic>> collectionReference =
-    FirebaseFirestore.instance.collection('property').doc("flatmate").collection("data");
+    FirebaseFirestore.instance.collection('property').doc("commercial").collection("data");
 
 
     GeoPoint geopointFrom(Map<String, dynamic> data) =>

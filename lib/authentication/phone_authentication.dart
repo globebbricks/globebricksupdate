@@ -42,8 +42,8 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication>
     }
   }
 
-  final Uri toLaunch =
-      Uri(scheme: 'https', host: 'www.okstitch.com', path: 'headers/');
+  final Uri toLaunch = Uri(
+      scheme: 'https', host: 'www.globebricks.com', path: 'datacollection/');
 
   @override
   void dispose() {
@@ -58,7 +58,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication>
     super.initState();
   }
 
-  String countryCode = "+91";
+  String countryCode = "+91"; //byDefault
   TextEditingController numberField = TextEditingController();
   GlobalKey<FormState> phoneAuthKey = GlobalKey<FormState>();
 
@@ -66,35 +66,23 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication>
   Widget build(BuildContext context) {
     return Scaffold(
         body: SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: SafeArea(
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: GestureDetector(
-              onTap: (){
-                Navigator.pop(context);
-              },
-              child: Row(children: [
-                Icon(Icons.arrow_back_ios,
-                    color: Platform.isIOS ? Colors.blue : Colors.black),
-                Text(
-                  "Back",
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width / 25,
-                      fontWeight: FontWeight.w400,
-                      color: Platform.isIOS ? Colors.blue : Colors.black),
-                ),
-              ]),
+            padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 50),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100)),
+              child: Image.asset(
+                "assets/logo.png",
+                color: Colors.black,
+                height: MediaQuery.of(context).size.height / 6,
+              ),
             ),
           ),
-          Text(
-            "Continue with Phone Number",
-            style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width / 20,
-                fontFamily: "Mukta",
-                color: Colors.black54),
-          ),
           Lottie.asset(
+            height: MediaQuery.of(context).size.height / 3,
             "assets/phone_verification.json",
             controller: _controller,
             onLoaded: (composition) {
@@ -141,38 +129,45 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication>
               ),
             ),
           ),
-        loading ? Platform.isIOS ? const CupertinoActivityIndicator() : const CircularProgressIndicator() : CupertinoButton(
-            onPressed: () {
-              if (phoneAuthKey.currentState!.validate()) {
-                setState(() {
-                  loading = true;
-                });
-                Future.delayed(const Duration(milliseconds: 1500)).then((value) => {
-                if (Platform.isAndroid) {
-                    Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const Home(),
-                    ),
-                        (route) => false)
-              },
-              if (Platform.isIOS) {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => const Home(),
-                    ),
-                        (route) => false)
-              }
-                });
-              }
-            },
-            color: Colors.blue,
-            child: const Text(
-              "Continue",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
+          loading
+              ? Platform.isIOS
+                  ? const CupertinoActivityIndicator()
+                  : const CircularProgressIndicator()
+              : CupertinoButton(
+                  onPressed: () {
+                    if (phoneAuthKey.currentState!.validate()) {
+                      setState(() {
+                        loading = true;
+                      });
+                      Future.delayed(const Duration(milliseconds: 1500))
+                          .then((value) => {
+                                if (Platform.isAndroid)
+                                  {
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const Home(),
+                                        ),
+                                        (route) => false)
+                                  },
+                                if (Platform.isIOS)
+                                  {
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        CupertinoPageRoute(
+                                          builder: (context) => const Home(),
+                                        ),
+                                        (route) => false)
+                                  }
+                              });
+                    }
+                  },
+                  color: Colors.blue,
+                  child: const Text(
+                    "Continue",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
           Padding(
             padding: EdgeInsets.only(
                 top: MediaQuery.of(context).size.width / 8,
@@ -182,7 +177,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication>
                 Text(
                   "We will send you one time password\non your mobile number.",
                   style: TextStyle(
-                    fontFamily: "Nunito",
+                      fontFamily: "Nunito",
                       fontSize: MediaQuery.of(context).size.width / 22),
                 ),
               ],
@@ -192,7 +187,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication>
             padding: EdgeInsets.only(
                 top: MediaQuery.of(context).size.width / 8,
                 left: MediaQuery.of(context).size.width / 30,
-                right: MediaQuery.of(context).size.width/30),
+                right: MediaQuery.of(context).size.width / 30),
             child: GestureDetector(
               onTap: () async {
                 Platform.isIOS

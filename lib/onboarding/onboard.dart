@@ -3,7 +3,7 @@ import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:globebricks/login/login.dart';
+import 'package:globebricks/authentication/phone_authentication.dart';
 import 'package:globebricks/onboarding/slide_dots.dart';
 import 'package:globebricks/onboarding/slide_items.dart';
 import 'package:globebricks/onboarding/slide_list.dart';
@@ -42,12 +42,35 @@ class _OnBoardState extends State<OnBoard> {
     ]);
     return MaterialApp(
       home: Scaffold(
-          body: PageView.builder(
-            physics: const BouncingScrollPhysics(),
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            itemCount: slideList.length,
-            itemBuilder: (ctx, i) => SlideItem(i),
+          body: Stack(
+            children: [
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Padding(
+                      padding:  EdgeInsets.all(MediaQuery.of(context).size.height/25),
+                      child: Card(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                        child: Image.asset(
+                          "assets/logo.png",
+                          color: Colors.black,
+                          height: MediaQuery.of(context).size.height/5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              PageView.builder(
+                physics: const BouncingScrollPhysics(),
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                itemCount: slideList.length,
+                itemBuilder: (ctx, i) => SlideItem(i),
+              ),
+            ],
           ),
           bottomSheet: _currentPage != slideList.length - 1
               ? Container(
@@ -56,7 +79,7 @@ class _OnBoardState extends State<OnBoard> {
                       const EdgeInsets.only(bottom: 40, left: 15, right: 15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
-                    color: Colors.black87
+                    color:  const Color(0xffe29587),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,7 +126,7 @@ class _OnBoardState extends State<OnBoard> {
                              Navigator.pushAndRemoveUntil(
                                  context,
                                  MaterialPageRoute(
-                                   builder: (context) => const Login(),
+                                   builder: (context) => const PhoneAuthentication(),
                                  ),
                                      (route) => false);
                            }
@@ -111,16 +134,16 @@ class _OnBoardState extends State<OnBoard> {
                              Navigator.pushAndRemoveUntil(
                                  context,
                                  CupertinoPageRoute(
-                                   builder: (context) => const Login(),
+                                   builder: (context) => const PhoneAuthentication(),
                                  ),
                                      (route) => false);
                            }
                           },
-                          color: const Color(0XFFFFDE59),
+                          color: const  Color(0xffe29587),
                           child: Text(
                             "Let's Start",
                             style: TextStyle(
-                                color: Colors.black,
+                                color: Colors.white,
                                 fontSize:
                                     MediaQuery.of(context).size.height / 50),
                           ),

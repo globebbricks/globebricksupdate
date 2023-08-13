@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:globebricks/profile.dart';
-import 'package:globebricks/serach_field/search.dart';
+import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
+import 'package:globebricks/assistants/data.dart';
+import 'package:globebricks/profile/profile.dart';
+import 'package:globebricks/search_field/search.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
@@ -45,13 +48,15 @@ class _HomeState extends State<Home>
     });
   }
 
+  var firestore = FirebaseFirestore.instance;
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     timer.cancel();
     _pageController.dispose();
-
+    firestore.terminate();
     super.dispose();
   }
 
@@ -103,8 +108,8 @@ class _HomeState extends State<Home>
   }
 
   void pageScroller() {
-    timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
-      if (_currentPage < hintList.length) {
+    timer = Timer.periodic(const Duration(seconds: 2), (Timer timer) {
+      if (_currentPage < hintList.length - 1) {
         _pageController.animateToPage(
           _currentPage,
           duration: const Duration(milliseconds: 350),
@@ -145,7 +150,7 @@ class _HomeState extends State<Home>
   Widget build(BuildContext context) {
     return Scaffold(
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding:  EdgeInsets.all(MediaQuery.of(context).size.width/20),
           child: Container(
             height: MediaQuery.of(context).size.height / 12,
             decoration: const BoxDecoration(
@@ -271,14 +276,16 @@ class _HomeState extends State<Home>
                                 : Platform.isIOS
                                     ? const CupertinoActivityIndicator()
                                     : const CircularProgressIndicator(),
-                            Text(
-                              "Amrit",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                  fontFamily: "Nunito",
-                                  fontSize:
-                                      MediaQuery.of(context).size.width / 20),
+                            Expanded(
+                              child: Text(
+                                "Komal Rajwansh",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontFamily: "Nunito",
+                                    fontSize:
+                                        MediaQuery.of(context).size.width / 20),
+                              ),
                             ),
                           ],
                         ),
@@ -328,7 +335,6 @@ class _HomeState extends State<Home>
                           ),
                         ),
                       ))),
-                      
                       SizedBox(
                         height: MediaQuery.of(context).size.height / 3.5,
                         width: MediaQuery.of(context).size.width / 1.1,
@@ -358,7 +364,24 @@ class _HomeState extends State<Home>
                                                 25,
                                         color: Colors.white),
                                   ),
-                                  onPressed: () {}),
+                                  onPressed: () {
+                                    GeoFirePoint geoFirePoint = GeoFirePoint(
+                                        GeoPoint(UserData.latitude,
+                                            UserData.longitude));
+
+                                    GeoCollectionReference<
+                                        Map<String, dynamic>>(
+                                      firestore
+                                          .collection('rent')
+                                          .doc("data")
+                                          .collection("1 Bhk"),
+                                    ).add(<String, dynamic>{
+                                      'geo': geoFirePoint.data,
+                                      'name': "Tokyo Station",
+                                      'isVisible': true,
+                                      'isVerified': true,
+                                    }).then((value) => {});
+                                  }),
                               const Card(
                                 color: Colors.red,
                                 child: Padding(
@@ -376,6 +399,7 @@ class _HomeState extends State<Home>
                     ],
                   ),
                 ),
+
                 const Card(
                   child: Column(
                     children: [
@@ -398,8 +422,8 @@ class _HomeState extends State<Home>
                             ),
                             LoadHomeCards(
                               imageLink:
-                                  'https://firebasestorage.googleapis.com/v0/b/globebricksproject.appspot.com/o/design%2FhomeCardImages%2Fhomedecor.png?alt=media&token=601b19f4-d215-4ef4-9750-de42b8a1e051',
-                              cardTitle: 'Home Decor',
+                                  'https://firebasestorage.googleapis.com/v0/b/globebricksproject.appspot.com/o/design%2FhomeCardImages%2Ffurniture.png?alt=media&token=3558a61e-1043-4ee1-b314-87de1fcdb1d0',
+                              cardTitle: 'Furniture',
                               className: SearchField(),
                             ),
                           ],
@@ -410,7 +434,6 @@ class _HomeState extends State<Home>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-
                             LoadHomeCards(
                               imageLink:
                                   'https://firebasestorage.googleapis.com/v0/b/globebricksproject.appspot.com/o/design%2FhomeCardImages%2FrealEstate.png?alt=media&token=7865e63b-7220-4d6f-897b-ba5676939e6c',
@@ -440,6 +463,8 @@ class _HomeState extends State<Home>
           ),
         ));
   }
+
+
 }
 
 class LoadHomeCards extends StatelessWidget {

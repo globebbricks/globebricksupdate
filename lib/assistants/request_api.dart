@@ -28,6 +28,7 @@ class RequestApi {
 class RequestMethods {
   static Future<String> searchCoordinateRequests(LatLng position) async {
     late String placeAddress;
+
     String url =
         "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${MapKey.key}";
     var response = await RequestApi.getRequestUrl(url);
