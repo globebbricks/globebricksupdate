@@ -242,8 +242,8 @@ class _HomeState extends State<Home>
                                 padding: const EdgeInsets.all(8.0),
                                 child: CircleAvatar(
                                   radius:
-                                      MediaQuery.of(context).size.width / 15,
-                                  backgroundColor: Colors.black,
+                                      MediaQuery.of(context).size.width / 20,
+                                  backgroundColor: const Color(0xffffa294),
                                   child: Icon(
                                     Icons.person_outline_sharp,
                                     color: Colors.white,

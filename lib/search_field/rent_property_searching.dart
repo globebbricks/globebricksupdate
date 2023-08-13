@@ -28,6 +28,7 @@ class _RentPropertySearchingState extends State<RentPropertySearching> {
             (_) => Future.delayed(const Duration(milliseconds: 3000), () async {
               setState(() {
                 loading = false;
+
               });
             }));
     return Scaffold(resizeToAvoidBottomInset: false, body: _body());

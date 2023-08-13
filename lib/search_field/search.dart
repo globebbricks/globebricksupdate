@@ -38,11 +38,28 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
 
   late String mapStyle;
 
+  List<MapType> mapStyleList = [
+    MapType.normal,
+    MapType.hybrid,
+    MapType.satellite,
+    MapType.terrain,
+  ];
+  List<String> mapStyleNames = [
+    "Normal",
+    "Hybrid",
+    "Satellite",
+    "Terrain",
+  ];
+
+  int mapStyleIndex = 0;
+
+  bool fullscreen = false;
 
   @override
   void initState() {
     _determinePosition();
     WidgetsBinding.instance.addObserver(this);
+
     super.initState();
   }
 
@@ -67,6 +84,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    panelHeightClosed = MediaQuery.of(context).size.height/3;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -84,6 +102,28 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
             "Search Everywhere",
             style: TextStyle(color: Colors.black87),
           ),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  if(fullscreen){
+                    panelHeightClosed = MediaQuery.of(context).size.height/3;
+                    pc.close();
+                 setState(() {
+                   fullscreen = false;
+                 });
+                  }else{
+                    panelHeightClosed = 0.0;
+                    pc.close();
+                    setState(() {
+                      fullscreen = true;
+                    });
+                  }
+                },
+                icon:   Icon(
+                  fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                  color: Colors.black,
+                ))
+          ],
         ),
         resizeToAvoidBottomInset: false,
         body: Stack(
@@ -93,7 +133,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
               zoomGesturesEnabled: true,
               initialCameraPosition: _kGoogle,
               markers: Set<Marker>.of(markers),
-              mapType: MapType.normal,
+              mapType: mapStyleList[mapStyleIndex],
               scrollGesturesEnabled: true,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
@@ -123,11 +163,10 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                                     listData = [];
                                   });
                                 },
-                                icon: const CircleAvatar(
-                                    child: Icon(
+                                icon: const Icon(
                                   Icons.close,
-                                  color: Colors.white,
-                                ))),
+                                  color: Colors.grey,
+                                )),
                             hintText: "Search location",
                             hintStyle: const TextStyle(
                                 color: Colors.black38, fontFamily: "Nunito"),
@@ -258,10 +297,10 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            Positioned(
-              right: MediaQuery.of(context).size.width/25,
-              bottom: MediaQuery.of(context).size.height/2.9,
-              child:FloatingActionButton(
+           fullscreen ? Container() : Positioned(
+              right: MediaQuery.of(context).size.width / 25,
+              bottom: MediaQuery.of(context).size.height / 2.9,
+              child: FloatingActionButton(
                 backgroundColor: Colors.white,
                 onPressed: () {
                   setState(() {
@@ -280,8 +319,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                 controller: pc,
                 defaultPanelState: PanelState.CLOSED,
                 maxHeight: panelHeightOpen = MediaQuery.of(context).size.height,
-                minHeight: panelHeightClosed =
-                    MediaQuery.of(context).size.height / 3,
+                minHeight: fullscreen ? 0.0 : panelHeightClosed,
                 parallaxEnabled: true,
                 parallaxOffset: .5,
                 panelBuilder: () => _panel(),
@@ -321,7 +359,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
               ),
             ),
             const Text(
-              "Hold & drag marker to change location",
+              "Hold & drag marker to change location 📌",
               style: TextStyle(fontFamily: "Nunito"),
             ),
             locating
@@ -330,94 +368,256 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                     child: DelayedDisplay(
                       child: Column(
                         children: [
-                          const Row(
-                            children: [
-                              Text(
-                                "You are here",
-                                style: TextStyle(
-                                    fontFamily: "Nunito",
-                                    fontWeight: FontWeight.bold),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Row(
+                                    children: [
+                                      Text(
+                                        "You are here",
+                                        style: TextStyle(
+                                            fontFamily: "Nunito",
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Icon(
+                                        Icons.location_on,
+                                        color: Colors.green,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Search Under ${radius.round().toString()} Meters",
+                                        style: const TextStyle(
+                                            fontFamily: "Nunito"),
+                                      )
+                                    ],
+                                  ),
+                                ],
                               ),
-                              Icon(
-                                Icons.location_on,
-                                color: Colors.green,
-                              ),
-                            ],
+                            ),
                           ),
-                          Text(
-                            UserData.address,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize:
-                                    MediaQuery.of(context).size.width / 28,
-                                fontFamily: "Nunito"),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              UserData.address,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width / 28,
+                                  fontFamily: "Nunito"),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   )
                 : Container(),
-
-
-            SliderTheme(
-             data: SliderThemeData(trackHeight: MediaQuery.of(context).size.width/50),
-              child: Slider(
-                inactiveColor: Colors.grey,
-                activeColor: Colors.indigo[100],
-                thumbColor: Colors.blue,
-                label: "Search Under ${radius.toInt()} Meters ",
-                min: 100,
-                max: 10000,
-                divisions: 100,
-                value: radius,
-                onChanged: (double value) {
-                  setState(() {
-                    radius = value.roundToDouble();
-                  });
-                },
-              ),
+            Slider(
+              inactiveColor: Colors.grey,
+              activeColor: Colors.indigo[100],
+              thumbColor: Colors.blue,
+              label: "Radius",
+              min: 100,
+              max: 10000,
+              divisions: 100,
+              value: radius,
+              onChanged: (double value) {
+                setState(() {
+                  radius = value.roundToDouble();
+                });
+              },
             ),
             locating
                 ? CupertinoButton(
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.green,
-                child: const Text(
-                  "Next",
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                onPressed: () {
-                  if (Platform.isAndroid) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                          const PropertySearchFilter(),
-                        ));
-                  }
-                  if (Platform.isIOS) {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (context) =>
-                          const PropertySearchFilter(),
-                        ));
-                  }
-                })
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.green,
+                    child: const Text(
+                      "Next",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    onPressed: () {
+                      if (Platform.isAndroid) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PropertySearchFilter(),
+                            ));
+                      }
+                      if (Platform.isIOS) {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) =>
+                                  const PropertySearchFilter(),
+                            ));
+                      }
+                    })
                 : Platform.isIOS
-                ? const CupertinoActivityIndicator()
-                : const CircularProgressIndicator(),
-
+                    ? const CupertinoActivityIndicator()
+                    : const CircularProgressIndicator(),
             const LottieAnimate(
               assetName: 'assets/search.json',
+            ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Change Map Style"),
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet<void>(
+                          isDismissible: true,
+                          context: context,
+                          builder: (BuildContext ctx) {
+                            return Container(
+                                height:
+                                    MediaQuery.of(context).size.height / 2.5,
+                                color: Colors.white,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            "Map Type",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          IconButton(
+                                              onPressed: () {
+                                                Navigator.pop(ctx);
+                                              },
+                                              icon: const Icon(Icons.close)),
+                                        ],
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          mapStyleIndex = 0;
+                                          Navigator.pop(ctx);
+                                          pc.close();
+                                        });
+                                      },
+                                      child: const Card(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text("Normal"),
+                                              Icon(Icons.arrow_forward_ios)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          mapStyleIndex = 1;
+                                          Navigator.pop(ctx);
+                                          pc.close();
+                                        });
+                                      },
+                                      child: const Card(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text("Satellite"),
+                                              Icon(Icons.arrow_forward_ios)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          mapStyleIndex = 2;
+                                          Navigator.pop(ctx);
+                                          pc.close();
+                                        });
+                                      },
+                                      child: const Card(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text("Hybrid"),
+                                              Icon(Icons.arrow_forward_ios)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          mapStyleIndex = 3;
+                                        });
+                                        Navigator.pop(ctx);
+                                        pc.close();
+                                      },
+                                      child: const Card(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text("Terrain"),
+                                              Icon(Icons.arrow_forward_ios)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ));
+                          },
+                        );
+                      },
+                      child: const Row(
+                        children: [
+                          Text(
+                            "Normal",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Icon(Icons.arrow_drop_down_outlined)
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 "We will give you accurate results according to your selected location & service",
                 style: TextStyle(
-                  color: Colors.black54,
+                    color: Colors.black54,
                     fontSize: MediaQuery.of(context).size.width / 25,
                     fontFamily: "Nunito"),
               ),
@@ -470,7 +670,6 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     UserData.latitude = position.latitude;
     UserData.longitude = position.longitude;
     UserData.address = data;
-
 
     setState(() {
       myLocationMarker();
@@ -602,7 +801,6 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
     setState(() {
       address = UserData.address;
     });
-
   }
 
   Future<void> _placeApiRequest(String userkeyboard) async {
