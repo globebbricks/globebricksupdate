@@ -513,15 +513,15 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                                           pc.close();
                                         });
                                       },
-                                      child: const Card(
+                                      child:  Card(
                                         child: Padding(
-                                          padding: EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("Normal"),
-                                              Icon(Icons.arrow_forward_ios)
+                                              Text(mapStyleNames[mapStyleIndex]),
+                                              const Icon(Icons.arrow_forward_ios)
                                             ],
                                           ),
                                         ),
