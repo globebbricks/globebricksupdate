@@ -358,6 +358,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                   )
                 : Container(),
 
+
             SliderTheme(
              data: SliderThemeData(trackHeight: MediaQuery.of(context).size.width/50),
               child: Slider(
