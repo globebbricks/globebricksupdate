@@ -513,15 +513,15 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                                           pc.close();
                                         });
                                       },
-                                      child:  Card(
+                                      child: const Card(
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: EdgeInsets.all(8.0),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(mapStyleNames[mapStyleIndex]),
-                                              const Icon(Icons.arrow_forward_ios)
+                                              Text("Normal"),
+                                              Icon(Icons.arrow_forward_ios)
                                             ],
                                           ),
                                         ),
@@ -598,13 +598,13 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                           },
                         );
                       },
-                      child: const Row(
+                      child:  Row(
                         children: [
-                          Text(
-                            "Normal",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            Text(mapStyleNames[mapStyleIndex],
+
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          Icon(Icons.arrow_drop_down_outlined)
+                          const Icon(Icons.arrow_drop_down_outlined)
                         ],
                       ),
                     ),
