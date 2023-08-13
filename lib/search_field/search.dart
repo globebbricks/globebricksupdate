@@ -376,8 +376,6 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                 },
               ),
             ),
-
-
             locating
                 ? CupertinoButton(
                 borderRadius: BorderRadius.circular(30),
