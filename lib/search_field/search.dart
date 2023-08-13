@@ -608,6 +608,7 @@ class _SearchFieldState extends State<SearchField> with WidgetsBindingObserver {
                         ],
                       ),
                     ),
+
                   ],
                 ),
               ),
